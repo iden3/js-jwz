@@ -1,30 +1,32 @@
 import { hash } from '../src/hash';
 import * as circom from 'circomlibjs';
-import { fromBigEndian } from '../src/core/util';
+import {  bufToBn, fromBigEndian, fromLittleEndian } from '../src/core/util';
 
-// test('hash', async () => {
-//   const h = await hash(Uint8Array.from([1, 2]));
+test('hash', async () => {
 
-//   expect(h).toEqual(
-//     BigInt(
-//       '2075790386255975908302404091086184911566540917451248410360078182271861587231',
-//     ),
-//   );
-// });
+  let utf8Encode = new TextEncoder();
+  let arr =  utf8Encode.encode("message")
+
+  expect(await hash(arr)).toEqual(
+    BigInt(
+      '12195879903067908640854440056941289904003404799313352286287749481941648225513',
+    ),
+  );
+});
 
 test('poseidon', async () => {
-  const poseidon = await circom.buildPoseidon();
-  const bytes = await poseidon([
-    BigInt(
-      '2075790386255975908302404091086184911566540917451248410360078182271861587231',
-    ),
+  const poseidon = await circom.poseidon;
+  let utf8Encode = new TextEncoder();
+  let arr =  utf8Encode.encode("message")
+  let hex  = Buffer.from(arr).toString('hex');
+
+  let  bigIntToHash =  BigInt(
+    "0x"+ hex,
+  )
+  console.log("to hash:", bigIntToHash.toString())
+  const bi = await poseidon([
+     bigIntToHash
   ]);
-  console.log(bytes);
-  console.log(fromBigEndian(bytes));
-  console.log(fromBigEndian(bytes));
-  // expect(h).toEqual(
-  //   BigInt(
-  //     '2075790386255975908302404091086184911566540917451248410360078182271861587231',
-  //   ),
-  // );
+  console.log(bi)
+  expect(BigInt(bi).toString() == "16076885786305451396952367807583087877643965039481491647404584414044042908412")
 });

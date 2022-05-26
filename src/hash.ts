@@ -15,7 +15,6 @@ export async function hash(message: Uint8Array): Promise<bigint> {
 
   // 2. swap hash before hashing
   const bi = fromBigEndian(hashBytes.reverse());
-  console.log(bi);
   //15468677989380262565338453565485024441368986398242953448530041073672859494561
 
   let m = BigInt(0);
@@ -24,14 +23,12 @@ export async function hash(message: Uint8Array): Promise<bigint> {
   } else {
     m = bi % BigInt(qString);
   }
-  console.log(m);
   //15468677989380262565338453565485024441368986398242953448530041073672859494561
 
-  const poseidon = await circom.buildPoseidon();
-  const bytes = await poseidon([m]);
-  console.log(bytes);
+  const poseidon = await circom.poseidon;
+  const poseidonHash = await poseidon([m]);
 
-  return fromBigEndian(bytes);
+  return poseidonHash;
 }
 
 // checkBigIntInField checks if given *big.Int fits in a Field Q element
