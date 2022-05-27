@@ -1,6 +1,5 @@
 import { hash } from '../src/hash';
 import * as circom from 'circomlibjs';
-import {  bufToBn, fromBigEndian, fromLittleEndian } from '../src/core/util';
 
 test('hash', async () => {
 

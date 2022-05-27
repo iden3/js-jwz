@@ -10,8 +10,7 @@ export function fromLittleEndian(bytes: Uint8Array): bigint {
 }
 
 export function fromBigEndian(bytes: Uint8Array): bigint {
-  let r = bytes.reverse();
-  return fromLittleEndian(r);
+  return fromLittleEndian(bytes.reverse());
 }
 
 export function toLittleEndian(bigNumber: bigint, len = 31): Uint8Array {
@@ -25,12 +24,14 @@ export function toLittleEndian(bigNumber: bigint, len = 31): Uint8Array {
   }
   return result;
 }
-export function bufToBn(u8:Uint8Array):bigint {
-  var hex: string[] = [];
+export function bufToBn(u8: Uint8Array): bigint {
+  const hex: string[] = [];
 
   u8.forEach(function (i) {
-    var h = i.toString(16);
-    if (h.length % 2) { h = '0' + h; }
+    let h = i.toString(16);
+    if (h.length % 2) {
+      h = '0' + h;
+    }
     hex.push(h);
   });
 
@@ -40,4 +41,3 @@ export function bufToBn(u8:Uint8Array):bigint {
 export function toBigEndian(bigNumber: bigint): Uint8Array {
   return toLittleEndian(bigNumber).reverse();
 }
-

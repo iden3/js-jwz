@@ -1,6 +1,6 @@
 export interface ZKProof {
   proof_data: unknown;
-  pub_signals: string;
+  pub_signals: string[];
 }
 
 const provingMethods = new Map<string, () => ProvingMethod>(); // map[string]func() ProvingMethod{}
@@ -12,9 +12,13 @@ export interface ProvingMethod {
     messageHash: Uint8Array,
     proof: ZKProof,
     verificationKey: Uint8Array,
-  ): boolean;
+  ): Promise<boolean>;
   // Returns proof or error
-  prove(inputs: Uint8Array, provingKey: Uint8Array, wasm: Uint8Array): ZKProof;
+  prove(
+    inputs: Uint8Array,
+    provingKey: Uint8Array,
+    wasm: Uint8Array,
+  ): Promise<ZKProof>;
 
   readonly alg: string;
   // Returns the alg identifier for this method (example: 'AUTH-GROTH-16')
@@ -46,17 +50,7 @@ export function getProvingMethod(alg: string): Promise<ProvingMethod> {
   });
 }
 
-// GetAlgorithms returns a list of registered "alg" names
-// func GetAlgorithms() (algs []string) {
-// 	provingMethodLock.RLock()
-// 	defer provingMethodLock.RUnlock()
-
-// 	for alg := range provingMethods {
-// 		algs = append(algs, alg)
-// 	}
-// 	return
-// }
-export function GetAlgorithms(): Promise<string[]> {
+export function getAlgorithms(): Promise<string[]> {
   return Promise.resolve(Array.from(provingMethods.keys()));
 }
 
@@ -67,9 +61,6 @@ export type ProofInputsPreparerHandlerFunc = (
 ) => Uint8Array;
 
 // Prepare function is responsible to call provided handler for inputs preparation
-// func (f ProofInputsPreparerHandlerFunc) Prepare(hash []byte, circuitID circuits.circuitId) ([]byte, error) {
-// 	return f(hash, circuitID)
-// }
 export function prepare(
   f: ProofInputsPreparerHandlerFunc,
   hash: Uint8Array,

@@ -9,7 +9,7 @@ import {
 } from './proving';
 
 // HeaderType is 'typ' header, so we can set specific typ
-export const HeaderType = 'typ'; // we allow to set typ of token
+export const headerType = 'typ'; // we allow to set typ of token
 export const headerCritical = 'crit';
 export const headerAlg = 'alg';
 export const headerCircuitId = 'circuitId';
@@ -33,24 +33,24 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
 
   async sanitized(): Promise<Token> {
     if (!this.payload) {
-      throw new Error('iden3/go-jwz: missing payload in JWZ message');
+      throw new Error('iden3/js-jwz: missing payload in JWZ message');
     }
     const headers = JSON.parse(this.protectedHeaders);
     const criticalHeaders = headers[headerCritical];
 
-    Object.keys(criticalHeaders).forEach((k) => {
-      if (!headers[k]) {
+    Object.keys(criticalHeaders).forEach((key) => {
+      if (!headers[key]) {
         throw new Error(
-          `iden3/go-jwz: header is listed in critical ${key}, but not presented`,
+          `iden3/js-jwz: header is listed in critical ${key}, but not presented`,
         );
       }
     });
 
     const alg = headers[headerAlg];
-    const method = await getProvingMethod(headers[headerAlg]);
+    const method = await getProvingMethod(alg);
     const circuitId = headers[headerCircuitId];
     const zkp = JSON.parse(this.zkp);
-    const token = new Token(method, this.payload, () => Uint8Array.from([]));
+    const token = new Token(method, this.payload);
     token.alg = alg;
     token.circuitId = circuitId;
     token.zkProof = zkp;
@@ -69,12 +69,14 @@ export class Token {
   constructor(
     public readonly method: ProvingMethod,
     payload: string,
-    private readonly inputsPreparer: ProofInputsPreparerHandlerFunc,
+    private readonly inputsPreparer?: ProofInputsPreparerHandlerFunc,
   ) {
     this.alg = this.method.alg;
     this.circuitId = this.method.circuitId;
     this.raw = {} as IRawJSONWebZeroknowledge;
     this.raw.header = this.getDefaultHeaders();
+    console.log(this.raw.header);
+
     this.raw.payload = payload;
   }
 
@@ -92,10 +94,10 @@ export class Token {
 
   private getDefaultHeaders(): { [key: string]: string | string[] } {
     return {
-      headerAlg: this.alg,
-      headerCritical: [headerCircuitId],
-      headerCircuitID: this.circuitId,
-      HeaderType: 'JWZ',
+      [headerAlg]: this.alg,
+      [headerCritical]: [headerCircuitId],
+      [headerCircuitId]: this.circuitId,
+      [headerType]: 'JWZ',
     };
   }
 
@@ -113,7 +115,7 @@ export class Token {
     const parts = tokenStr.split('.');
     if (parts.length != 3) {
       throw new Error(
-        'iden3/go-jwz: compact JWZ format must have three segments',
+        'iden3/js-jwz: compact JWZ format must have three segments',
       );
     }
     const rawProtected = atob(parts[0]);
@@ -137,34 +139,27 @@ export class Token {
     const raw: IRawJSONWebZeroknowledge = JSON.parse(tokenStr);
     return await raw.sanitized();
   }
-  // ParsePubSignals unmarshalls proof public signals to provided structure.
-  parsePubSignals(out: {
-    pubSignalsUnmarshal: (data: string) => unknown;
-  }): unknown {
-    const pubSignals = JSON.parse(this.zkProof.pub_signals);
-
-    out.pubSignalsUnmarshal(pubSignals);
-
-    return null;
-  }
 
   // Prove creates and returns a complete, proved JWZ.
   // The token is proven using the Proving Method specified in the token.
-  prove(provingKey: Uint8Array, wasm: Uint8Array): string {
+  async prove(provingKey: Uint8Array, wasm: Uint8Array): Promise<string> {
     // all headers must be protected
     const headers = JSON.stringify(this.raw.header);
 
     this.raw.protectedHeaders = headers;
 
-    const msgHash: Uint8Array = this.getMessageHash();
+    const msgHash: Uint8Array = await this.getMessageHash();
 
+    if (!this.inputsPreparer) {
+      throw new Error('iden3/jwz: prepare func must be defined');
+    }
     const inputs: Uint8Array = prepare(
       this.inputsPreparer,
       msgHash,
       this.circuitId,
     );
 
-    const proof: ZKProof = this.method.prove(inputs, provingKey, wasm);
+    const proof: ZKProof = await this.method.prove(inputs, provingKey, wasm);
 
     const marshaledProof = JSON.stringify(proof);
 
@@ -187,7 +182,7 @@ export class Token {
     return `${serializedProtected}.${serializedPayload}.${serializedProof}`;
   }
 
-  // FullSerialize returns marshaled presentation of raw token as json string.
+  // fullSerialize returns marshaled presentation of raw token as json string.
   fullSerialize(): string {
     return JSON.stringify(this.raw);
   }
@@ -205,5 +200,14 @@ export class Token {
 
     const hashInt: bigint = await hash(messageToProof);
     return toLittleEndian(hashInt);
+  }
+
+  // Verify  perform zero knowledge verification.
+  async verify(verificationKey: Uint8Array): Promise<boolean> {
+    // 1. prepare hash o payload message that had to be proven
+    const msgHash = await this.getMessageHash();
+
+    // 2. verify that zkp is valid
+    return this.method.verify(msgHash, this.zkProof, verificationKey);
   }
 }
