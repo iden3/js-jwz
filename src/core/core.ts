@@ -2,7 +2,7 @@ import { sha256 } from 'cross-sha256';
 import { toLittleEndian } from './util';
 export class Core {
   static intToBytes(int: bigint): Uint8Array {
-    return Uint8Array.from(toLittleEndian(int));
+    return Uint8Array.from(toLittleEndian(int, 31));
   }
 
   static checkChecksum(bytes: Uint8Array): boolean {
@@ -35,7 +35,7 @@ export class Core {
   static calculateChecksum(typ: Uint8Array, genesis: Uint8Array): Uint8Array {
     const toChecksum = new Uint8Array([...typ, ...genesis]);
     const s = toChecksum.reduce((acc, cur) => acc + cur, 0);
-    const checksum = [];
+    const checksum: number[] = [];
     checksum[0] = s >> 8;
     checksum[1] = s & 0xff;
     return Uint8Array.from(checksum);

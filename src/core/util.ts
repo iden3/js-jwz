@@ -13,7 +13,7 @@ export function fromBigEndian(bytes: Uint8Array): bigint {
   return fromLittleEndian(bytes.reverse());
 }
 
-export function toLittleEndian(bigNumber: bigint, len = 31): Uint8Array {
+export function toLittleEndian(bigNumber: bigint, len = 32): Uint8Array {
   const n256 = BigInt(256);
   const result = new Uint8Array(len);
   let i = 0;
@@ -41,3 +41,12 @@ export function bufToBn(u8: Uint8Array): bigint {
 export function toBigEndian(bigNumber: bigint): Uint8Array {
   return toLittleEndian(bigNumber).reverse();
 }
+
+export function ObjToArray(json):Uint8Array{
+	var str = JSON.stringify(json, null, 0);
+	var ret = new Uint8Array(str.length);
+	for (var i = 0; i < str.length; i++) {
+		ret[i] = str.charCodeAt(i);
+	}
+	return ret
+};

@@ -1,8 +1,9 @@
 import { Id } from './core/id';
-import { fromLittleEndian } from './core/util';
+import { fromBigEndian, fromLittleEndian } from './core/util';
 import { ProvingMethod, registerProvingMethod, ZKProof } from './proving';
 import * as snarkjs from 'snarkjs';
 import * as wc from './witness/witness_calculator';
+import { Core } from './core/core';
 
 const groth16 = 'groth16';
 const authCircuit = 'auth';
@@ -10,8 +11,24 @@ const authCircuit = 'auth';
 // AuthPubSignals auth.circom public signals
 interface AuthPubSignals {
   challenge: bigint;
-  userState: unknown;
-  userID: Id;
+  userState: bigint;
+  userId: Id;
+}
+async function unmarshall(pubsignals: string[]): Promise<AuthPubSignals> {
+  const outputs: AuthPubSignals = {} as AuthPubSignals;
+  if (pubsignals.length != 3) {
+    throw new Error(
+      `invalid number of Output values expected ${3} got ${
+        pubsignals.length
+      }`,
+    );
+  }
+  outputs.challenge = BigInt(pubsignals[0]);
+  outputs.userState = BigInt(pubsignals[1]);
+
+  const bytes: Uint8Array = Core.intToBytes(BigInt(pubsignals[2]));
+  outputs.userId = Id.idFromBytes(bytes);
+  return outputs;
 }
 
 // ProvingMethodGroth16Auth defines proofs family and specific circuit
@@ -23,16 +40,15 @@ class ProvingMethodGroth16Auth implements ProvingMethod {
     proof: ZKProof,
     verificationKey: Uint8Array,
   ): Promise<boolean> {
-    const outputs: AuthPubSignals = {} as AuthPubSignals;
-    // TODO: AuthPubSignals
+    const outputs: AuthPubSignals = await unmarshall(proof.pub_signals)
+
 
     if (outputs.challenge !== fromLittleEndian(messageHash)) {
       console.error('challenge is not equal to message hash');
       return false;
     }
-
     return await snarkjs.groth16.verify(
-      verificationKey,
+      JSON.parse(Buffer.from(verificationKey).toString()),
       proof.pub_signals,
       proof.proof_data,
     );
@@ -43,10 +59,16 @@ class ProvingMethodGroth16Auth implements ProvingMethod {
     provingKey: Uint8Array,
     wasm: Uint8Array,
   ): Promise<ZKProof> {
-    const witnessCalculator = await wc.default(wasm, true);
+
+
+    const witnessCalculator = await wc.default(wasm);
+
+    const jsonString = Buffer.from(inputs).toString('utf8')
+
+    const parsedData = JSON.parse(jsonString);
     const wtnsBytes: Uint8Array = await witnessCalculator.calculateWTNSBin(
-      inputs,
-      true,
+      parsedData,
+      0,
     );
 
     const { proof, publicSignals } = await snarkjs.groth16.prove(

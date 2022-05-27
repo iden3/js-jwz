@@ -1,4 +1,4 @@
-import { toLittleEndian } from './core/util';
+import { fromLittleEndian, ObjToArray, toBigEndian, toLittleEndian } from './core/util';
 import { hash } from './hash';
 import {
   ZKProof,
@@ -38,7 +38,8 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
     const headers = JSON.parse(this.protectedHeaders);
     const criticalHeaders = headers[headerCritical];
 
-    Object.keys(criticalHeaders).forEach((key) => {
+
+    criticalHeaders.forEach((key) => {
       if (!headers[key]) {
         throw new Error(
           `iden3/js-jwz: header is listed in critical ${key}, but not presented`,
@@ -75,7 +76,6 @@ export class Token {
     this.circuitId = this.method.circuitId;
     this.raw = {} as IRawJSONWebZeroknowledge;
     this.raw.header = this.getDefaultHeaders();
-    console.log(this.raw.header);
 
     this.raw.payload = payload;
   }
@@ -102,16 +102,16 @@ export class Token {
   }
 
   // Parse parses a jwz message in compact or full serialization format.
-  parse(tokenStr: string): Promise<Token> {
+  static parse(tokenStr: string): Promise<Token> {
     // Parse parses a jwz message in compact or full serialization format.
     const token = tokenStr?.trim();
     return token.startsWith('{')
-      ? this.parseFull(tokenStr)
-      : this.parseCompact(tokenStr);
+      ? Token.parseFull(tokenStr)
+      : Token.parseCompact(tokenStr);
   }
 
   // parseCompact parses a message in compact format.
-  private async parseCompact(tokenStr: string): Promise<Token> {
+  private static async parseCompact(tokenStr: string): Promise<Token> {
     const parts = tokenStr.split('.');
     if (parts.length != 3) {
       throw new Error(
@@ -135,16 +135,16 @@ export class Token {
   }
 
   // parseFull parses a message in full format.
-  private async parseFull(tokenStr: string): Promise<Token> {
+  private static async parseFull(tokenStr: string): Promise<Token> {
     const raw: IRawJSONWebZeroknowledge = JSON.parse(tokenStr);
     return await raw.sanitized();
   }
 
   // Prove creates and returns a complete, proved JWZ.
   // The token is proven using the Proving Method specified in the token.
-  async prove(provingKey: Uint8Array, wasm: Uint8Array): Promise<string> {
+async prove(provingKey: Uint8Array, wasm: Uint8Array): Promise<string> {
     // all headers must be protected
-    const headers = JSON.stringify(this.raw.header);
+    const headers = this.serializeHeaders();
 
     this.raw.protectedHeaders = headers;
 
@@ -169,15 +169,16 @@ export class Token {
     return this.compactSerialize();
   }
 
+  
   // CompactSerialize returns token serialized in three parts: base64 encoded headers, payload and proof.
   compactSerialize(): string {
     if (!this.raw.header || !this.raw.protectedHeaders || !this.zkProof) {
       throw new Error("iden3/jwz:can't serialize without one of components");
     }
 
-    const serializedProtected = atob(this.raw.protectedHeaders);
-    const serializedProof = atob(JSON.stringify(this.zkProof));
-    const serializedPayload = atob(this.raw.payload);
+    const serializedProtected = btoa(this.raw.protectedHeaders);
+    const serializedProof = btoa(JSON.stringify(this.zkProof));
+    const serializedPayload = btoa(this.raw.payload);
 
     return `${serializedProtected}.${serializedPayload}.${serializedProof}`;
   }
@@ -188,9 +189,10 @@ export class Token {
   }
 
   async getMessageHash(): Promise<Uint8Array> {
-    const headers = JSON.stringify(this.raw.header);
 
-    const protectedHeaders = btoa(headers);
+    const serializedHeaders = this.serializeHeaders();
+
+    const protectedHeaders = btoa(serializedHeaders)
     const payload = btoa(this.raw.payload);
 
     // JWZ ZkProof input value is ASCII(BASE64URL(UTF8(JWS Protected Header)) || '.' || BASE64URL(JWS Payload)).
@@ -209,5 +211,9 @@ export class Token {
 
     // 2. verify that zkp is valid
     return this.method.verify(msgHash, this.zkProof, verificationKey);
+  }
+  
+  serializeHeaders(){
+    return JSON.stringify(this.raw.header,Object.keys(this.raw.header).sort())
   }
 }

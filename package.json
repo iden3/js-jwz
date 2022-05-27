@@ -10,6 +10,7 @@
     "transform": {
       ".(ts|tsx)": "ts-jest"
     },
+    "testTimeout":10000,
     "testEnvironment": "node",
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "moduleFileExtensions": [
@@ -49,10 +50,25 @@
   },
   "homepage": "https://github.com/iden3/js-jwz#readme",
   "dependencies": {
+    "base58-js": "^1.0.0",
     "circomlibjs": "0.0.8",
     "cross-sha256": "^1.2.0",
     "ffjavascript": "^0.2.54",
     "snarkjs": "^0.4.19"
+  },
+  "browserslist": {
+    "production": [
+      "chrome >= 67",
+      "edge >= 79",
+      "firefox >= 68",
+      "opera >= 54",
+      "safari >= 14"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "devDependencies": {
     "@types/jest": "27.4.1",
