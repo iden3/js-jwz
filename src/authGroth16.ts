@@ -2,7 +2,7 @@ import { Id } from './core/id';
 import { fromLittleEndian } from './core/util';
 import { ProvingMethod, registerProvingMethod, ZKProof } from './proving';
 import * as snarkjs from 'snarkjs';
-import * as wc from './witness/witness_calculator';
+import { witnessBuilder } from './witness_calculator';
 import { Core } from './core/core';
 
 const groth16 = 'groth16';
@@ -56,7 +56,7 @@ class ProvingMethodGroth16Auth implements ProvingMethod {
     provingKey: Uint8Array,
     wasm: Uint8Array,
   ): Promise<ZKProof> {
-    const witnessCalculator = await wc.default(wasm);
+    const witnessCalculator = await witnessBuilder(wasm);
 
     const jsonString = Buffer.from(inputs).toString('utf8');
 
