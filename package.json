@@ -2,10 +2,14 @@
   "name": "js-jwz",
   "version": "0.1.0",
   "description": "JS implementation of JWZ",
-  "main": "src/index.ts",
+  "main": "dist/lib/index.js",
+  "types": "dist/types/index.d.ts",
   "directories": {
     "test": "test"
   },
+  "files": [
+    "dist"
+  ],
   "jest": {
     "transform": {
       ".(ts|tsx)": "ts-jest"
@@ -38,7 +42,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint --fix --ext .js,.ts src/**",
-    "build": "tsc --module commonjs"
+    "build": "tsc --module commonjs",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "repository": {
     "type": "git",

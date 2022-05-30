@@ -45,7 +45,7 @@ export function getProvingMethod(alg: string): Promise<ProvingMethod> {
       const method: ProvingMethod = func();
       res(method);
     } else {
-      rej();
+      rej('unknown alg');
     }
   });
 }

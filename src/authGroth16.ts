@@ -1,6 +1,6 @@
 import { Id } from './core/id';
 import { fromLittleEndian } from './core/util';
-import { ProvingMethod, registerProvingMethod, ZKProof } from './proving';
+import { ProvingMethod, ZKProof } from './proving';
 import * as snarkjs from 'snarkjs';
 import { witnessBuilder } from './witness_calculator';
 import { Core } from './core/core';
@@ -16,9 +16,9 @@ interface AuthPubSignals {
 }
 async function unmarshall(pubsignals: string[]): Promise<AuthPubSignals> {
   const outputs: AuthPubSignals = {} as AuthPubSignals;
-  if (pubsignals.length !== 3) {
+  if (pubsignals.length != 3) {
     throw new Error(
-      `invalid number of Output values expected 3 got ${pubsignals.length}`,
+      `invalid number of Output values expected ${3} got ${pubsignals.length}`,
     );
   }
   outputs.challenge = BigInt(pubsignals[0]);
@@ -80,8 +80,3 @@ class ProvingMethodGroth16Auth implements ProvingMethod {
 
 export const provingMethodGroth16AuthInstance: ProvingMethod =
   new ProvingMethodGroth16Auth(groth16, authCircuit);
-
-registerProvingMethod(
-  provingMethodGroth16AuthInstance.alg,
-  () => provingMethodGroth16AuthInstance,
-);
