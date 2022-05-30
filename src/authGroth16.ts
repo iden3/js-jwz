@@ -47,7 +47,7 @@ class ProvingMethodGroth16Auth implements ProvingMethod {
     return await snarkjs.groth16.verify(
       JSON.parse(Buffer.from(verificationKey).toString()),
       proof.pub_signals,
-      proof.proof_data,
+      proof.proof,
     );
   }
 
@@ -72,7 +72,7 @@ class ProvingMethodGroth16Auth implements ProvingMethod {
     );
 
     return {
-      proof_data: proof,
+      proof: proof,
       pub_signals: publicSignals,
     };
   }

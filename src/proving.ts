@@ -1,5 +1,5 @@
 export interface ZKProof {
-  proof_data: unknown;
+  proof: unknown;
   pub_signals: string[];
 }
 
