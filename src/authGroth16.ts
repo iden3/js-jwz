@@ -1,8 +1,8 @@
 import { Id } from './core/id';
-import { fromBigEndian, fromLittleEndian } from './core/util';
+import { fromLittleEndian } from './core/util';
 import { ProvingMethod, registerProvingMethod, ZKProof } from './proving';
 import * as snarkjs from 'snarkjs';
-import * as wc from './witness/witness_calculator';
+import { witnessBuilder } from './witness_calculator';
 import { Core } from './core/core';
 
 const groth16 = 'groth16';
@@ -16,11 +16,9 @@ interface AuthPubSignals {
 }
 async function unmarshall(pubsignals: string[]): Promise<AuthPubSignals> {
   const outputs: AuthPubSignals = {} as AuthPubSignals;
-  if (pubsignals.length != 3) {
+  if (pubsignals.length !== 3) {
     throw new Error(
-      `invalid number of Output values expected ${3} got ${
-        pubsignals.length
-      }`,
+      `invalid number of Output values expected 3 got ${pubsignals.length}`,
     );
   }
   outputs.challenge = BigInt(pubsignals[0]);
@@ -40,8 +38,7 @@ class ProvingMethodGroth16Auth implements ProvingMethod {
     proof: ZKProof,
     verificationKey: Uint8Array,
   ): Promise<boolean> {
-    const outputs: AuthPubSignals = await unmarshall(proof.pub_signals)
-
+    const outputs: AuthPubSignals = await unmarshall(proof.pub_signals);
 
     if (outputs.challenge !== fromLittleEndian(messageHash)) {
       console.error('challenge is not equal to message hash');
@@ -59,11 +56,9 @@ class ProvingMethodGroth16Auth implements ProvingMethod {
     provingKey: Uint8Array,
     wasm: Uint8Array,
   ): Promise<ZKProof> {
+    const witnessCalculator = await witnessBuilder(wasm);
 
-
-    const witnessCalculator = await wc.default(wasm);
-
-    const jsonString = Buffer.from(inputs).toString('utf8')
+    const jsonString = Buffer.from(inputs).toString('utf8');
 
     const parsedData = JSON.parse(jsonString);
     const wtnsBytes: Uint8Array = await witnessCalculator.calculateWTNSBin(

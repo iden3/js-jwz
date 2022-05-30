@@ -1,4 +1,4 @@
-import { fromLittleEndian, ObjToArray, toBigEndian, toLittleEndian } from './core/util';
+import { toLittleEndian } from './core/util';
 import { hash } from './hash';
 import {
   ZKProof,
@@ -37,7 +37,6 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
     }
     const headers = JSON.parse(this.protectedHeaders);
     const criticalHeaders = headers[headerCritical];
-
 
     criticalHeaders.forEach((key) => {
       if (!headers[key]) {
@@ -142,7 +141,7 @@ export class Token {
 
   // Prove creates and returns a complete, proved JWZ.
   // The token is proven using the Proving Method specified in the token.
-async prove(provingKey: Uint8Array, wasm: Uint8Array): Promise<string> {
+  async prove(provingKey: Uint8Array, wasm: Uint8Array): Promise<string> {
     // all headers must be protected
     const headers = this.serializeHeaders();
 
@@ -169,7 +168,6 @@ async prove(provingKey: Uint8Array, wasm: Uint8Array): Promise<string> {
     return this.compactSerialize();
   }
 
-  
   // CompactSerialize returns token serialized in three parts: base64 encoded headers, payload and proof.
   compactSerialize(): string {
     if (!this.raw.header || !this.raw.protectedHeaders || !this.zkProof) {
@@ -189,10 +187,9 @@ async prove(provingKey: Uint8Array, wasm: Uint8Array): Promise<string> {
   }
 
   async getMessageHash(): Promise<Uint8Array> {
-
     const serializedHeaders = this.serializeHeaders();
 
-    const protectedHeaders = btoa(serializedHeaders)
+    const protectedHeaders = btoa(serializedHeaders);
     const payload = btoa(this.raw.payload);
 
     // JWZ ZkProof input value is ASCII(BASE64URL(UTF8(JWS Protected Header)) || '.' || BASE64URL(JWS Payload)).
@@ -212,8 +209,8 @@ async prove(provingKey: Uint8Array, wasm: Uint8Array): Promise<string> {
     // 2. verify that zkp is valid
     return this.method.verify(msgHash, this.zkProof, verificationKey);
   }
-  
-  serializeHeaders(){
-    return JSON.stringify(this.raw.header,Object.keys(this.raw.header).sort())
+
+  serializeHeaders() {
+    return JSON.stringify(this.raw.header, Object.keys(this.raw.header).sort());
   }
 }

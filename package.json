@@ -10,7 +10,7 @@
     "transform": {
       ".(ts|tsx)": "ts-jest"
     },
-    "testTimeout":10000,
+    "testTimeout": 20000,
     "testEnvironment": "node",
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "moduleFileExtensions": [
@@ -37,6 +37,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
+    "lint": "eslint --fix --ext .js,.ts src/**",
     "build": "tsc --module commonjs"
   },
   "repository": {
