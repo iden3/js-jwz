@@ -1,6 +1,6 @@
 {
   "name": "js-jwz",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "JS implementation of JWZ",
   "main": "src/index.ts",
   "directories": {
