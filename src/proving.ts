@@ -1,6 +1,12 @@
 export interface ZKProof {
-  proof: unknown;
+  proof: ProofData;
   pub_signals: string[];
+}
+export interface ProofData {
+  pi_a: string[];
+  pi_b: string[][];
+  pi_c: string[];
+  protocol: string;
 }
 
 const provingMethods = new Map<string, () => ProvingMethod>(); // map[string]func() ProvingMethod{}
