@@ -1,31 +1,25 @@
 import { hash } from '../src/hash';
 import * as circom from 'circomlibjs';
+import { fromBigEndian, fromLittleEndian } from '../src/core/util';
 
 test('hash', async () => {
   let utf8Encode = new TextEncoder();
   let arr = utf8Encode.encode('message');
 
-  expect(await hash(arr)).toEqual(
-    BigInt(
-      '12195879903067908640854440056941289904003404799313352286287749481941648225513',
-    ),
+  let res = await hash(arr);
+  expect(res.toString()).toBe(
+    '12195879903067908640854440056941289904003404799313352286287749481941648225513',
   );
 });
-
 test('hash long message', async () => {
   let utf8Encode = new TextEncoder();
-  let arr = utf8Encode.encode('message');
+  let arr = utf8Encode.encode(
+    '{"userAuthClaim":["304427537360709784173770334266246861770","0","17640206035128972995519606214765283372613874593503528180869261482403155458945","20634138280259599560273310290025659992320584624461316485434108770067472477956","15930428023331155902","0","0","0"],"userAuthClaimMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"userAuthClaimNonRevMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"userAuthClaimNonRevMtpAuxHi":"0","userAuthClaimNonRevMtpAuxHv":"0","userAuthClaimNonRevMtpNoAux":"1","challenge":"6568187306293073175114267504711682812904598368490904573742495126063294481938","challengeSignatureR8x":"15230565441506590379169832995887068998322005265009046474267743823535028195613","challengeSignatureR8y":"10769958837943955028152112183244447895061604149794975067459918696631541903296","challengeSignatureS":"421650140447062113811542806382702329042840096310563827636625110300562791229","userClaimsTreeRoot":"9763429684850732628215303952870004997159843236039795272605841029866455670219","userID":"379949150130214723420589610911161895495647789006649785264738141299135414272","userRevTreeRoot":"0","userRootsTreeRoot":"0","userState":"18656147546666944484453899241916469544090258810192803949522794490493271005313"}',
+  );
 
-  let msgHex =
-    '65794a68624763694f694a6e636d3930614445324969776959326c795933567064456c6b496a6f695958563061434973496d4e79615851694f6c736959326c795933567064456c6b496c3073496e523563434936496b705857694a392e62586c745a584e7a5957646c';
-
-  const msgFromHEx = Uint8Array.from(Buffer.from(msgHex, 'hex'));
-
-  let res = await hash(msgFromHEx);
-  expect(res).toEqual(
-    BigInt(
-      '19054333970885023780123560936675456700861469068603321884718748961750930466794',
-    ),
+  let res = await hash(arr);
+  expect(res.toString()).toBe(
+    '3741385570005605084300493775652159969493539073276486448913383306368831791102',
   );
 });
 
@@ -34,11 +28,10 @@ test('poseidon', async () => {
   let utf8Encode = new TextEncoder();
   let arr = utf8Encode.encode('message');
   let hex = Buffer.from(arr).toString('hex');
-
   let bigIntToHash = BigInt('0x' + hex);
   const bi = await poseidon([bigIntToHash]);
   expect(
-    BigInt(bi).toString() ==
+    (bi as BigInt).toString() ==
       '16076885786305451396952367807583087877643965039481491647404584414044042908412',
   );
 });
