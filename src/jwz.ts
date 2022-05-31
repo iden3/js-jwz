@@ -158,7 +158,6 @@ export class Token {
     );
 
     const proof: ZKProof = await this.method.prove(inputs, provingKey, wasm);
-    delete proof.proof['curve'];
 
     const marshaledProof = JSON.stringify(proof);
 
