@@ -1,5 +1,5 @@
 {
-  "name": "js-jwz",
+  "name": "@iden3/js-jwz",
   "version": "0.1.0",
   "description": "JS implementation of JWZ",
   "main": "dist/lib/index.js",
@@ -49,8 +49,8 @@
     "type": "git",
     "url": "git+https://github.com/iden3/js-jwz.git"
   },
-  "author": "D.Kolezhniuk",
-  "license": "ISC",
+  "author": "iden3",
+  "license": "AGPL-3.0",
   "bugs": {
     "url": "https://github.com/iden3/js-jwz/issues"
   },
