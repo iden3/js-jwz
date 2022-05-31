@@ -1,4 +1,4 @@
-import { toLittleEndian } from './core/util';
+import { toBigEndian } from './core/util';
 import { hash } from './hash';
 import {
   ZKProof,
@@ -8,6 +8,8 @@ import {
   prepare,
 } from './proving';
 
+import { base64url as base64 } from 'rfc4648';
+
 // HeaderType is 'typ' header, so we can set specific typ
 export const headerType = 'typ'; // we allow to set typ of token
 export const headerCritical = 'crit';
@@ -15,27 +17,28 @@ export const headerAlg = 'alg';
 export const headerCircuitId = 'circuitId';
 
 export interface IRawJSONWebZeroknowledge {
-  payload: string;
-  protectedHeaders: string;
+  payload: Uint8Array;
+  protectedHeaders: Uint8Array;
   header: { [key: string]: any };
-  zkp: string;
+  zkp: Uint8Array;
 
   sanitized(): Promise<Token>;
 }
 
 export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
   constructor(
-    public payload: string,
-    public protectedHeaders: string,
+    public payload: Uint8Array,
+    public protectedHeaders: Uint8Array,
     public header: { [key: string]: any },
-    public zkp: string,
+    public zkp: Uint8Array,
   ) {}
 
   async sanitized(): Promise<Token> {
     if (!this.payload) {
       throw new Error('iden3/js-jwz: missing payload in JWZ message');
     }
-    const headers = JSON.parse(this.protectedHeaders);
+
+    const headers = JSON.parse(new TextDecoder().decode(this.protectedHeaders));
     const criticalHeaders = headers[headerCritical];
 
     criticalHeaders.forEach((key) => {
@@ -49,8 +52,8 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
     const alg = headers[headerAlg];
     const method = await getProvingMethod(alg);
     const circuitId = headers[headerCircuitId];
-    const zkp = JSON.parse(this.zkp);
-    const token = new Token(method, this.payload);
+    const zkp = JSON.parse(new TextDecoder().decode(this.zkp));
+    const token = new Token(method, new TextDecoder().decode(this.payload));
     token.alg = alg;
     token.circuitId = circuitId;
     token.zkProof = zkp;
@@ -76,7 +79,7 @@ export class Token {
     this.raw = {} as IRawJSONWebZeroknowledge;
     this.raw.header = this.getDefaultHeaders();
 
-    this.raw.payload = payload;
+    this.raw.payload = new TextEncoder().encode(payload);
   }
 
   public setHeader(key: string, value: unknown): void {
@@ -84,11 +87,7 @@ export class Token {
   }
 
   public getPayload(): string {
-    return this.raw.payload;
-  }
-
-  public setPayload(payload: string): void {
-    this.raw.payload = payload;
+    return new TextDecoder().decode(this.raw.payload);
   }
 
   private getDefaultHeaders(): { [key: string]: string | string[] } {
@@ -117,11 +116,11 @@ export class Token {
         'iden3/js-jwz: compact JWZ format must have three segments',
       );
     }
-    const rawProtected = atob(parts[0]);
+    const rawProtected = base64.parse(parts[0], { loose: true });
 
-    const rawPayload = atob(parts[1]);
+    const rawPayload = base64.parse(parts[1], { loose: true });
 
-    const proof = atob(parts[2]);
+    const proof = base64.parse(parts[2], { loose: true });
 
     const raw: IRawJSONWebZeroknowledge = new RawJSONWebZeroknowledge(
       rawPayload,
@@ -145,7 +144,7 @@ export class Token {
     // all headers must be protected
     const headers = this.serializeHeaders();
 
-    this.raw.protectedHeaders = headers;
+    this.raw.protectedHeaders = new TextEncoder().encode(headers);
 
     const msgHash: Uint8Array = await this.getMessageHash();
 
@@ -159,11 +158,12 @@ export class Token {
     );
 
     const proof: ZKProof = await this.method.prove(inputs, provingKey, wasm);
+    delete proof.proof['curve'];
 
     const marshaledProof = JSON.stringify(proof);
 
     this.zkProof = proof;
-    this.raw.zkp = marshaledProof;
+    this.raw.zkp = new TextEncoder().encode(marshaledProof);
 
     return this.compactSerialize();
   }
@@ -174,10 +174,13 @@ export class Token {
       throw new Error("iden3/jwz:can't serialize without one of components");
     }
 
-    const serializedProtected = btoa(this.raw.protectedHeaders);
-    const serializedProof = btoa(JSON.stringify(this.zkProof));
-    const serializedPayload = btoa(this.raw.payload);
-
+    const serializedProtected = base64.stringify(this.raw.protectedHeaders, {
+      pad: false,
+    });
+    const serializedProof = base64.stringify(this.raw.zkp, { pad: false });
+    const serializedPayload = base64.stringify(this.raw.payload, {
+      pad: false,
+    });
     return `${serializedProtected}.${serializedPayload}.${serializedProof}`;
   }
 
@@ -187,10 +190,14 @@ export class Token {
   }
 
   async getMessageHash(): Promise<Uint8Array> {
-    const serializedHeaders = this.serializeHeaders();
+    const serializedHeadersJSON = this.serializeHeaders();
 
-    const protectedHeaders = btoa(serializedHeaders);
-    const payload = btoa(this.raw.payload);
+    const serializedHeaders = new TextEncoder().encode(serializedHeadersJSON);
+    const protectedHeaders = base64.stringify(serializedHeaders, {
+      pad: false,
+    });
+
+    const payload = base64.stringify(this.raw.payload, { pad: false });
 
     // JWZ ZkProof input value is ASCII(BASE64URL(UTF8(JWS Protected Header)) || '.' || BASE64URL(JWS Payload)).
     const messageToProof = new TextEncoder().encode(
@@ -198,7 +205,8 @@ export class Token {
     );
 
     const hashInt: bigint = await hash(messageToProof);
-    return toLittleEndian(hashInt);
+
+    return toBigEndian(hashInt);
   }
 
   // Verify  perform zero knowledge verification.
