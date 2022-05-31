@@ -66,7 +66,7 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
 export class Token {
   public alg: string;
   public circuitId: string;
-  public raw: IRawJSONWebZeroknowledge;
+  private raw: IRawJSONWebZeroknowledge;
   public zkProof: ZKProof = {} as ZKProof;
 
   constructor(

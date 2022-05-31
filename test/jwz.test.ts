@@ -36,9 +36,7 @@ describe('js jws', () => {
 
     expect(token.alg).toEqual('groth16');
     expect(token.circuitId).toEqual('auth');
-    expect(token.raw.header[headerCritical]).toEqual([headerCircuitId]);
-    expect(token.raw.header[headerAlg]).toEqual('groth16');
-    expect(token.raw.header[headerType]).toEqual('JWZ');
+
   });
 
   test('prove method', async () => {
