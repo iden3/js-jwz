@@ -1,5 +1,5 @@
 import { Id } from './core/id';
-import { fromLittleEndian } from './core/util';
+import { fromBigEndian } from './core/util';
 import { ProvingMethod, ZKProof } from './proving';
 import * as snarkjs from 'snarkjs';
 import { witnessBuilder } from './witness_calculator';
@@ -40,7 +40,7 @@ class ProvingMethodGroth16Auth implements ProvingMethod {
   ): Promise<boolean> {
     const outputs: AuthPubSignals = await unmarshall(proof.pub_signals);
 
-    if (outputs.challenge !== fromLittleEndian(messageHash)) {
+    if (outputs.challenge !== fromBigEndian(messageHash)) {
       console.error('challenge is not equal to message hash');
       return false;
     }
