@@ -38,9 +38,8 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
       throw new Error('iden3/js-jwz: missing payload in JWZ message');
     }
 
-    const headers = JSON.parse(new TextDecoder().decode(this.protectedHeaders));
+    const headers:any = JSON.parse(new TextDecoder().decode(this.protectedHeaders));
     const criticalHeaders = headers[headerCritical];
-
     criticalHeaders.forEach((key) => {
       if (!headers[key]) {
         throw new Error(
@@ -57,7 +56,10 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
     token.alg = alg;
     token.circuitId = circuitId;
     token.zkProof = zkp;
-
+    for (const [key, value] of Object.entries(headers)) { 
+      token.setHeader(key,value);
+  }
+ 
     return token;
   }
 }
@@ -204,6 +206,8 @@ export class Token {
     );
 
     const hashInt: bigint = await hash(messageToProof);
+    console.log("hashInt ", hashInt.toString());
+
 
     return toBigEndian(hashInt);
   }
