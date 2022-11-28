@@ -1,20 +1,25 @@
 {
   "compilerOptions": {
     "moduleResolution": "node",
-    "target": "es2020",
-    "module": "es2020",
-    "lib": [ "dom", "es2020"],
+    "target": "esnext",
+    "module": "es6",
+    "lib": ["esnext", "dom"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noImplicitAny": false,
     "strict": true,
     "sourceMap": true,
-    "allowJs": true,
-    "noImplicitAny": false,
     "declaration": true,
     "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
     "declarationDir": "dist/types",
-    "outDir": "dist/lib",
-    "typeRoots": ["node_modules/@types"]
+    "outDir": "dist/cjs",
+    "typeRoots": [
+      "node_modules/@types"
+    ]
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

@@ -1,9 +1,10 @@
 import { hash } from './hash';
-import { Token } from './jwz';
+import { Token, Header } from './jwz';
 import { provingMethodGroth16AuthInstance } from './authGroth16';
 import {
   getProvingMethod,
   ProofInputsPreparerHandlerFunc,
+  ProvingMethod,
   registerProvingMethod,
 } from './proving';
 
@@ -18,4 +19,11 @@ const proving = {
   provingMethodGroth16AuthInstance,
 };
 
-export { proving, ProofInputsPreparerHandlerFunc, Token, hash };
+export {
+  proving,
+  ProofInputsPreparerHandlerFunc,
+  ProvingMethod,
+  Token,
+  hash,
+  Header,
+};

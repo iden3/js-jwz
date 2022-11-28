@@ -1,9 +1,12 @@
-import { Id } from './core/id';
-import { fromBigEndian } from './core/util';
 import { ProvingMethod, ZKProof } from './proving';
 import * as snarkjs from 'snarkjs';
 import { witnessBuilder } from './witness_calculator';
-import { Core } from './core/core';
+import {
+  BytesHelper,
+  Id,
+  fromBigEndian,
+  Constants,
+} from '@iden3/js-iden3-core';
 
 const groth16 = 'groth16';
 const authCircuit = 'auth';
@@ -24,8 +27,12 @@ async function unmarshall(pubsignals: string[]): Promise<AuthPubSignals> {
   outputs.challenge = BigInt(pubsignals[0]);
   outputs.userState = BigInt(pubsignals[1]);
 
-  const bytes: Uint8Array = Core.intToBytes(BigInt(pubsignals[2]));
-  outputs.userId = Id.idFromBytes(bytes);
+  const bytes: Uint8Array = BytesHelper.intToNBytes(
+    BigInt(pubsignals[2]),
+    Constants.ID.ID_LENGTH,
+  );
+  outputs.userId = Id.fromBytes(bytes);
+
   return outputs;
 }
 

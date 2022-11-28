@@ -1,11 +1,15 @@
-export async function witnessBuilder(code, options?) {
+declare const WebAssembly: any;
+export async function witnessBuilder(
+  code: Uint8Array,
+  options?: Record<string, unknown> | undefined,
+) {
   options = options || {};
 
   const wasmModule = await WebAssembly.compile(code);
 
   const instance = await WebAssembly.instantiate(wasmModule, {
     runtime: {
-      exceptionHandler: function (code) {
+      exceptionHandler: function (code: number) {
         let errStr;
         if (code == 1) {
           errStr = 'Signal not found. ';
@@ -36,7 +40,7 @@ export async function witnessBuilder(code, options?) {
 
   function getMessage() {
     let message = '';
-    let c = (instance.exports as any as any).getMessageChar();
+    let c = (instance.exports as any).getMessageChar();
     while (c !== 0) {
       message += String.fromCharCode(c);
       c = (instance.exports as any).getMessageChar();
@@ -63,7 +67,7 @@ class WitnessCalculator {
   public witnessSize: any;
   public sanityCheck: any;
 
-  constructor(instance, sanityCheck) {
+  constructor(instance: any, sanityCheck: any) {
     this.instance = instance;
 
     this.version = (this.instance.exports as any).getVersion();
@@ -87,7 +91,7 @@ class WitnessCalculator {
     return (this.instance.exports as any).getVersion();
   }
 
-  async _doCalculateWitness(input, sanityCheck) {
+  async _doCalculateWitness(input: { [x: string]: any }, sanityCheck: any) {
     //input is assumed to be a map from signals to arrays of bigints
     (this.instance.exports as any).init(
       this.sanityCheck || sanityCheck ? 1 : 0,
@@ -115,7 +119,7 @@ class WitnessCalculator {
     });
   }
 
-  async calculateWitness(input, sanityCheck) {
+  async calculateWitness(input: any, sanityCheck: any) {
     const w: any[] = [];
 
     await this._doCalculateWitness(input, sanityCheck);
@@ -134,7 +138,7 @@ class WitnessCalculator {
     return w;
   }
 
-  async calculateBinWitness(input, sanityCheck) {
+  async calculateBinWitness(input: any, sanityCheck: any) {
     const buff32 = new Uint32Array(this.witnessSize * this.n32);
     const buff = new Uint8Array(buff32.buffer);
     await this._doCalculateWitness(input, sanityCheck);
@@ -150,7 +154,7 @@ class WitnessCalculator {
     return buff;
   }
 
-  async calculateWTNSBin(input, sanityCheck) {
+  async calculateWTNSBin(input: any, sanityCheck: number) {
     const buff32 = new Uint32Array(this.witnessSize * this.n32 + this.n32 + 11);
     const buff = new Uint8Array(buff32.buffer);
     await this._doCalculateWitness(input, sanityCheck);
@@ -216,7 +220,7 @@ class WitnessCalculator {
   }
 }
 
-function toArray32(s, size) {
+function toArray32(s: string | number | bigint | boolean, size: number) {
   const res: number[] = []; //new Uint32Array(size); //has no unshift
   let rem = BigInt(s);
   const radix = BigInt(0x100000000);
@@ -234,7 +238,7 @@ function toArray32(s, size) {
   return res;
 }
 
-function fromArray32(arr): bigint {
+function fromArray32(arr: string | any[] | Uint32Array): bigint {
   //returns a BigInt
   let res = BigInt(0);
   const radix = BigInt(0x100000000);
@@ -244,12 +248,12 @@ function fromArray32(arr): bigint {
   return res;
 }
 
-function flatArray(a) {
-  const res = [];
+function flatArray(a: any) {
+  const res: never[] = [];
   fillArray(res, a);
   return res;
 
-  function fillArray(res, a) {
+  function fillArray(res: any[], a: string | any[]) {
     if (Array.isArray(a)) {
       for (let i = 0; i < a.length; i++) {
         fillArray(res, a[i]);
@@ -260,7 +264,7 @@ function flatArray(a) {
   }
 }
 
-function fnvHash(str) {
+function fnvHash(str: string | any[]) {
   const uint64_max = BigInt(2) ** BigInt(64);
   let hash = BigInt('0xCBF29CE484222325');
   for (let i = 0; i < str.length; i++) {
