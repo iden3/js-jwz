@@ -7,9 +7,15 @@ import {
   ProvingMethod,
   registerProvingMethod,
 } from './proving';
+import { provingMethodGroth16AuthV2Instance } from './authV2Groth16';
 
 registerProvingMethod(
-  provingMethodGroth16AuthInstance.alg,
+  provingMethodGroth16AuthInstance.methodAlg,
+  () => provingMethodGroth16AuthInstance,
+);
+
+registerProvingMethod(
+  provingMethodGroth16AuthV2Instance.methodAlg,
   () => provingMethodGroth16AuthInstance,
 );
 
@@ -17,6 +23,7 @@ const proving = {
   registerProvingMethod,
   getProvingMethod,
   provingMethodGroth16AuthInstance,
+  provingMethodGroth16AuthV2Instance,
 };
 
 export {
