@@ -65,20 +65,4 @@ describe('js jws', () => {
     expect(isValid).toBeTruthy();
   });
 
-  it("TestTokenAuthV2Prove", () => {
-    const payload = []byte("mymessage")
-    const token = new Token() NewWithPayload(ProvingMethodGroth16AuthV2Instance, payload, MockPrepareAuthV2Inputs)
-  
-    let provingKey = fs.readFileSync('./test/data/authV2/circuit_final.zkey');
-    let wasm = fs.readFileSync('./test/data/authV2/circuit.wasm');
-    let verificationKey = fs.readFileSync('./test/data/authV2/verification_key.json');
-  
-    const tokenString  = token.Prove(provingKey, wasm)
-  
-    t.Log(tokenString)
-  
-    const isValid, err = token.Verify(verificationKey)
-    assert.True(t, isValid)
-  
-  }
 });

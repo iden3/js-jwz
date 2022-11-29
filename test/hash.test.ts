@@ -28,7 +28,8 @@ test('poseidon', () => {
   let hex = Buffer.from(arr).toString('hex');
   let bigIntToHash = BigInt('0x' + hex);
   const bi = poseidon.hash([bigIntToHash]);
-  expect(bi.toString() ==
+  expect(
+    bi.toString() ==
       '16076885786305451396952367807583087877643965039481491647404584414044042908412',
   );
 });
