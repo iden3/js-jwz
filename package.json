@@ -64,6 +64,7 @@
     "rfc4648": "^1.5.2",
     "@iden3/js-crypto": "file:./iden3-js-crypto-0.0.1.tgz",
     "@iden3/js-iden3-core": "file:./iden3-js-iden3-core-0.0.1.tgz",
+    "@iden3/js-merkletree": "file:./iden3-js-merkletree-0.0.0.tgz",
     "snarkjs": "^0.4.19"
   },
   "browserslist": {

@@ -1,27 +1,20 @@
 import { ProofInputsPreparerHandlerFunc, proving } from '../src/index';
-import {
-  headerCritical,
-  Token,
-  headerCircuitId,
-  headerAlg,
-  headerType,
-} from './../src/jwz';
+import { Token } from './../src/jwz';
 
 import * as fs from 'fs';
-import { fromBigEndian, fromLittleEndian } from '../src/core/util';
-import { getCurveFromName } from 'ffjavascript';
-
-afterAll(async () => {
-  const curve = await getCurveFromName('bn128');
-  curve.terminate();
-});
 
 describe('js jws', () => {
   let mock: ProofInputsPreparerHandlerFunc;
+  let mockV2: ProofInputsPreparerHandlerFunc;
   beforeAll(() => {
     mock = (hash: Uint8Array, circuitId: string): Uint8Array => {
       return new TextEncoder().encode(
         `{"userAuthClaim":["304427537360709784173770334266246861770","0","17640206035128972995519606214765283372613874593503528180869261482403155458945","20634138280259599560273310290025659992320584624461316485434108770067472477956","15930428023331155902","0","0","0"],"userAuthClaimMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"userAuthClaimNonRevMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"userAuthClaimNonRevMtpAuxHi":"0","userAuthClaimNonRevMtpAuxHv":"0","userAuthClaimNonRevMtpNoAux":"1","challenge":"6568187306293073175114267504711682812904598368490904573742495126063294481938","challengeSignatureR8x":"15230565441506590379169832995887068998322005265009046474267743823535028195613","challengeSignatureR8y":"10769958837943955028152112183244447895061604149794975067459918696631541903296","challengeSignatureS":"421650140447062113811542806382702329042840096310563827636625110300562791229","userClaimsTreeRoot":"9763429684850732628215303952870004997159843236039795272605841029866455670219","userID":"379949150130214723420589610911161895495647789006649785264738141299135414272","userRevTreeRoot":"0","userRootsTreeRoot":"0","userState":"18656147546666944484453899241916469544090258810192803949522794490493271005313"}`,
+      );
+    };
+    mockV2 = (hash: Uint8Array, circuitId: string): Uint8Array => {
+      return new TextEncoder().encode(
+        `{"userGenesisID":"379949150130214723420589610911161895495647789006649785264738141299135414272","userSalt":"10","userAuthClaim":["304427537360709784173770334266246861770","0","17640206035128972995519606214765283372613874593503528180869261482403155458945","20634138280259599560273310290025659992320584624461316485434108770067472477956","15930428023331155902","0","0","0"],"userAuthClaimMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"userAuthClaimNonRevMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"userAuthClaimNonRevMtpAuxHi":"0","userAuthClaimNonRevMtpAuxHv":"0","userAuthClaimNonRevMtpNoAux":"1","challenge":"6110517768249559238193477435454792024732173865488900270849624328650765691494","challengeSignatureR8x":"2273647433349372574162365571517182161856978101733725351784171216877260126349","challengeSignatureR8y":"20921152258050920729820249883788091534543872328111915977763626674391221282579","challengeSignatureS":"1281122186572874955530253539759994983000852038854525332258204958436946993067","userClaimsTreeRoot":"9763429684850732628215303952870004997159843236039795272605841029866455670219","userRevTreeRoot":"0","userRootsTreeRoot":"0","userState":"18656147546666944484453899241916469544090258810192803949522794490493271005313","globalSmtRoot":"13891407091237035626910338386637210028103224489833886255774452947213913989795","globalSmtMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"globalSmtMtpAuxHi":"321655963459726004040127369337727353299407142334036950741528344494565949440","globalSmtMtpAuxHv":"1257746809182882563786560928809910818663538703587513060503018952434273712929","globalSmtMtpNoAux":"0"}`,
       );
     };
   });
@@ -71,4 +64,21 @@ describe('js jws', () => {
     const isValid = await parsedToken.verify(verificationKey);
     expect(isValid).toBeTruthy();
   });
+
+  it("TestTokenAuthV2Prove", () => {
+    const payload = []byte("mymessage")
+    const token = new Token() NewWithPayload(ProvingMethodGroth16AuthV2Instance, payload, MockPrepareAuthV2Inputs)
+  
+    let provingKey = fs.readFileSync('./test/data/authV2/circuit_final.zkey');
+    let wasm = fs.readFileSync('./test/data/authV2/circuit.wasm');
+    let verificationKey = fs.readFileSync('./test/data/authV2/verification_key.json');
+  
+    const tokenString  = token.Prove(provingKey, wasm)
+  
+    t.Log(tokenString)
+  
+    const isValid, err = token.Verify(verificationKey)
+    assert.True(t, isValid)
+  
+  }
 });

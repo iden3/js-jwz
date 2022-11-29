@@ -69,7 +69,9 @@ export function getProvingMethod(
 }
 
 export function getAlgorithms(): Promise<string[]> {
-  return Promise.resolve(Array.from(provingMethods.keys()));
+  return Promise.resolve(
+    Array.from(provingMethods.keys()).map((k) => k.split(':')[0]),
+  );
 }
 
 // ProofInputsPreparerHandlerFunc prepares inputs using hash message and circuit id

@@ -2,6 +2,7 @@ import { hash } from './hash';
 import {
   ZKProof,
   ProvingMethod,
+  ProvingMethodAlg,
   ProofInputsPreparerHandlerFunc,
   getProvingMethod,
   prepare,
@@ -52,8 +53,8 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
     });
 
     const alg = headers[Header.Alg];
-    const method = await getProvingMethod(alg);
     const circuitId = headers[Header.CircuitId];
+    const method = await getProvingMethod(new ProvingMethodAlg(alg, circuitId));
     const zkp = JSON.parse(new TextDecoder().decode(this.zkp));
     const token = new Token(method, new TextDecoder().decode(this.payload));
     token.alg = alg;
