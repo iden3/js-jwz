@@ -21,7 +21,7 @@ export enum Header {
 export interface IRawJSONWebZeroknowledge {
   payload: Uint8Array;
   protectedHeaders: Uint8Array;
-  header: { [key: string]: any };
+  header: { [key: string]: unknown };
   zkp: Uint8Array;
 
   sanitized(): Promise<Token>;
@@ -31,7 +31,7 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
   constructor(
     public payload: Uint8Array,
     public protectedHeaders: Uint8Array,
-    public header: { [key: string]: any },
+    public header: { [key: string]: unknown },
     public zkp: Uint8Array,
   ) {}
 
@@ -40,10 +40,10 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
       throw new Error('iden3/js-jwz: missing payload in JWZ message');
     }
 
-    const headers: any = JSON.parse(
+    const headers: { [key: string]: unknown } = JSON.parse(
       new TextDecoder().decode(this.protectedHeaders),
     );
-    const criticalHeaders = headers[Header.Critical];
+    const criticalHeaders = headers[Header.Critical] as string[];
     criticalHeaders.forEach((key: string) => {
       if (!headers[key]) {
         throw new Error(
@@ -52,8 +52,9 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
       }
     });
 
-    const alg = headers[Header.Alg];
-    const circuitId = headers[Header.CircuitId];
+    const alg = headers[Header.Alg] as string;
+    const circuitId = headers[Header.CircuitId] as string;
+
     const method = await getProvingMethod(new ProvingMethodAlg(alg, circuitId));
     const zkp = JSON.parse(new TextDecoder().decode(this.zkp));
     const token = new Token(method, new TextDecoder().decode(this.payload));
@@ -211,7 +212,7 @@ export class Token {
 
     const hashInt: bigint = await hash(messageToProof);
 
-    return toBigEndian(hashInt);
+    return toBigEndian(hashInt, 32);
   }
 
   // Verify  perform zero knowledge verification.
@@ -220,6 +221,7 @@ export class Token {
     const msgHash = await this.getMessageHash();
 
     // 2. verify that zkp is valid
+
     return this.method.verify(msgHash, this.zkProof, verificationKey);
   }
 

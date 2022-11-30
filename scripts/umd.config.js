@@ -10,7 +10,6 @@ esbuild.build({
     format: 'iife',
     outfile: pkg.main.replace('cjs', 'umd'),
     globalName: name
-}).catch((err) => {
-    console.error(err);
+}).catch(() => {
     return process.exit(1);
 });

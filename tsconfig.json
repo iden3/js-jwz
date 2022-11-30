@@ -12,12 +12,11 @@
     "sourceMap": true,
     "declaration": true,
     "allowSyntheticDefaultImports": true,
+    "useUnknownInCatchVariables": false,
     "resolveJsonModule": true,
     "declarationDir": "dist/types",
     "outDir": "dist/cjs",
-    "typeRoots": [
-      "node_modules/@types"
-    ]
+    "typeRoots": ["node_modules/@types"]
   },
   "include": [
     "src"

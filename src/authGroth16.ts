@@ -1,5 +1,5 @@
 import { ProvingMethod, ProvingMethodAlg, ZKProof } from './proving';
-import { BytesHelper, Id, Constants } from '@iden3/js-iden3-core';
+import { Id } from '@iden3/js-iden3-core';
 import { AuthCircuit, Groth16, prove, verify } from './common';
 
 // AuthPubSignals auth.circom public signals
@@ -32,12 +32,7 @@ class ProvingMethodGroth16Auth implements ProvingMethod {
     }
     outputs.challenge = BigInt(pubsignals[0]);
     outputs.userState = BigInt(pubsignals[1]);
-
-    const bytes: Uint8Array = BytesHelper.intToNBytes(
-      BigInt(pubsignals[2]),
-      Constants.ID.ID_LENGTH,
-    );
-    outputs.userId = Id.fromBytes(bytes);
+    outputs.userId = Id.fromBigInt(BigInt(pubsignals[2]));
 
     return outputs;
   }

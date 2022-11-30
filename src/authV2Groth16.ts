@@ -55,7 +55,7 @@ export class ProvingMethodGroth16AuthV2 implements ProvingMethod {
     }
 
     return {
-      userId: Id.fromString(pubSignals[0]),
+      userId: Id.fromBigInt(BigInt(pubSignals[0])),
       challenge: BigInt(pubSignals[1]),
       globalSmtRoot: newHashFromString(pubSignals[2]),
     };

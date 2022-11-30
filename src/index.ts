@@ -16,7 +16,7 @@ registerProvingMethod(
 
 registerProvingMethod(
   provingMethodGroth16AuthV2Instance.methodAlg,
-  () => provingMethodGroth16AuthInstance,
+  () => provingMethodGroth16AuthV2Instance,
 );
 
 const proving = {

@@ -1,68 +1,83 @@
+import { Groth16, AuthV2Circuit } from './../src/common';
+
 import { ProofInputsPreparerHandlerFunc, proving } from '../src/index';
 import { Token } from './../src/jwz';
+import { getCurveFromName } from 'ffjavascript';
 
 import * as fs from 'fs';
 
+afterAll(async () => {
+  const curve = await getCurveFromName('bn128');
+  curve.terminate();
+});import { base64url as base64 } from 'rfc4648';
+
 describe('js jws', () => {
   let mock: ProofInputsPreparerHandlerFunc;
-  let mockV2: ProofInputsPreparerHandlerFunc;
+
   beforeAll(() => {
     mock = (hash: Uint8Array, circuitId: string): Uint8Array => {
       return new TextEncoder().encode(
-        `{"userAuthClaim":["304427537360709784173770334266246861770","0","17640206035128972995519606214765283372613874593503528180869261482403155458945","20634138280259599560273310290025659992320584624461316485434108770067472477956","15930428023331155902","0","0","0"],"userAuthClaimMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"userAuthClaimNonRevMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"userAuthClaimNonRevMtpAuxHi":"0","userAuthClaimNonRevMtpAuxHv":"0","userAuthClaimNonRevMtpNoAux":"1","challenge":"6568187306293073175114267504711682812904598368490904573742495126063294481938","challengeSignatureR8x":"15230565441506590379169832995887068998322005265009046474267743823535028195613","challengeSignatureR8y":"10769958837943955028152112183244447895061604149794975067459918696631541903296","challengeSignatureS":"421650140447062113811542806382702329042840096310563827636625110300562791229","userClaimsTreeRoot":"9763429684850732628215303952870004997159843236039795272605841029866455670219","userID":"379949150130214723420589610911161895495647789006649785264738141299135414272","userRevTreeRoot":"0","userRootsTreeRoot":"0","userState":"18656147546666944484453899241916469544090258810192803949522794490493271005313"}`,
-      );
-    };
-    mockV2 = (hash: Uint8Array, circuitId: string): Uint8Array => {
-      return new TextEncoder().encode(
-        `{"userGenesisID":"379949150130214723420589610911161895495647789006649785264738141299135414272","userSalt":"10","userAuthClaim":["304427537360709784173770334266246861770","0","17640206035128972995519606214765283372613874593503528180869261482403155458945","20634138280259599560273310290025659992320584624461316485434108770067472477956","15930428023331155902","0","0","0"],"userAuthClaimMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"userAuthClaimNonRevMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"userAuthClaimNonRevMtpAuxHi":"0","userAuthClaimNonRevMtpAuxHv":"0","userAuthClaimNonRevMtpNoAux":"1","challenge":"6110517768249559238193477435454792024732173865488900270849624328650765691494","challengeSignatureR8x":"2273647433349372574162365571517182161856978101733725351784171216877260126349","challengeSignatureR8y":"20921152258050920729820249883788091534543872328111915977763626674391221282579","challengeSignatureS":"1281122186572874955530253539759994983000852038854525332258204958436946993067","userClaimsTreeRoot":"9763429684850732628215303952870004997159843236039795272605841029866455670219","userRevTreeRoot":"0","userRootsTreeRoot":"0","userState":"18656147546666944484453899241916469544090258810192803949522794490493271005313","globalSmtRoot":"13891407091237035626910338386637210028103224489833886255774452947213913989795","globalSmtMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"globalSmtMtpAuxHi":"321655963459726004040127369337727353299407142334036950741528344494565949440","globalSmtMtpAuxHv":"1257746809182882563786560928809910818663538703587513060503018952434273712929","globalSmtMtpNoAux":"0"}`,
+        `{"genesisID":"19229084873704550357232887142774605442297337229176579229011342091594174977","profileNonce":"0","authClaim":["301485908906857522017021291028488077057","0","4720763745722683616702324599137259461509439547324750011830105416383780791263","4844030361230692908091131578688419341633213823133966379083981236400104720538","16547485850637761685","0","0","0"],"authClaimIncMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"authClaimNonRevMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"authClaimNonRevMtpAuxHi":"0","authClaimNonRevMtpAuxHv":"0","authClaimNonRevMtpNoAux":"1","challenge":"6110517768249559238193477435454792024732173865488900270849624328650765691494","challengeSignatureR8x":"10923900855019966925146890192107445603460581432515833977084358496785417078889","challengeSignatureR8y":"16158862443157007045624936621448425746188316255879806600364391221203989186031","challengeSignatureS":"51416591880507739389339515804072924841765472826035808894700970942045022090","claimsTreeRoot":"5156125448952672817978035354327403409438120028299513459509442000229340486813","revTreeRoot":"0","rootsTreeRoot":"0","state":"13749793311041076104545663747883540987785640262360452307923674522221753800226","gistRoot":"1243904711429961858774220647610724273798918457991486031567244100767259239747","gistMtp":["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],"gistMtpAuxHi":"1","gistMtpAuxHv":"1","gistMtpNoAux":"0"}`,
       );
     };
   });
 
-  test('jwz new', async () => {
+  test('jwz new with payload', async () => {
     const payload = 'mymessage';
     const token = new Token(
-      proving.provingMethodGroth16AuthInstance,
+      proving.provingMethodGroth16AuthV2Instance,
       payload,
       mock,
     );
 
-    expect(token.alg).toEqual('groth16');
-    expect(token.circuitId).toEqual('auth');
+    expect(token.alg).toEqual(Groth16);
+    expect(token.circuitId).toEqual(AuthV2Circuit);
   });
 
   test('prove method', async () => {
-    const payload =
-      '{"id":"8507b1f6-6aa8-47cb-aeca-c71f6e69033c","thid":"8507b1f6-6aa8-47cb-aeca-c71f6e69033c","from":"1125GJqgw6YEsKFwj63GY87MMxPL9kwDKxPUiwMLNZ","typ":"application/iden3comm-plain-json","type":"https://iden3-communication.io/authorization/1.0/request","body":{"reason":"test flow","message":"","callbackUrl":"http://localhost:8080/api/callback?sessionId=1","scope":[]}}';
+    const payload = 'mymessage';
+
     const token = new Token(
-      proving.provingMethodGroth16AuthInstance,
+      proving.provingMethodGroth16AuthV2Instance,
       payload,
       mock,
     );
 
-    expect(token.alg).toEqual('groth16');
-    var encoder = new TextEncoder();
-    let provingKey = fs.readFileSync('./test/data/circuit_final.zkey');
-    let wasm = fs.readFileSync('./test/data/circuit.wasm');
-    let verificationKey = fs.readFileSync('./test/data/verification_key.json');
-    let compacted = await token.prove(provingKey, wasm);
-    let isValid = await token.verify(verificationKey);
-    expect(isValid).toBeTruthy();
-
-    let parsedToken = await Token.parse(
-      `eyJhbGciOiJncm90aDE2IiwiY2lyY3VpdElkIjoiYXV0aCIsImNyaXQiOlsiY2lyY3VpdElkIl0sInR5cCI6IkpXWiJ9.eyJpZCI6Ijg1MDdiMWY2LTZhYTgtNDdjYi1hZWNhLWM3MWY2ZTY5MDMzYyIsInRoaWQiOiI4NTA3YjFmNi02YWE4LTQ3Y2ItYWVjYS1jNzFmNmU2OTAzM2MiLCJmcm9tIjoiMTEyNUdKcWd3NllFc0tGd2o2M0dZODdNTXhQTDlrd0RLeFBVaXdNTE5aIiwidHlwIjoiYXBwbGljYXRpb24vaWRlbjNjb21tLXBsYWluLWpzb24iLCJ0eXBlIjoiaHR0cHM6Ly9pZGVuMy1jb21tdW5pY2F0aW9uLmlvL2F1dGhvcml6YXRpb24vMS4wL3JlcXVlc3QiLCJib2R5Ijp7InJlYXNvbiI6InRlc3QgZmxvdyIsIm1lc3NhZ2UiOiIiLCJjYWxsYmFja1VybCI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9hcGkvY2FsbGJhY2s_c2Vzc2lvbklkPTEiLCJzY29wZSI6W119fQ.eyJwcm9vZiI6eyJwaV9hIjpbIjIwNTgyODQwNTg5NDMzNDI3NTYwMDEzNjA1MzMxMzMzOTQ1MTUwMDc5ODE0NzgyNTU1OTczNDU1Nzg1NTg4MTc3OTEzODI3MzkwODI2IiwiMTg4NTkyMDY2MzY5MTcyNDI4NjI4NDI4MjU0MjA0OTU5NjUzNDk0MjkxODg4Mjc5NjU2MjE5NDYwMjcyMTYxNzAwMDg4MjI1ODg4MDUiLCIxIl0sInBpX2IiOltbIjgzNjU3Njc2ODEzNTI1MjY2MjUzNDAwOTkxMDI1NDg4NjE4NDQ0OTY0OTczNDA1NTQ3MDc1Mzg4NjAwMDA2ODI2OTY1ODg2Mzk5NjMiLCIyMTQ0NzU5ODU0MDk0NDk3NDAyODMxMjEyMTM3MTAzMzgwMjQ4NTY3Nzk3OTMzODIyNjkxOTk1Njc3NTAzMDEzMjk1MDY0MDc0OTkzMCJdLFsiNDc0NjQ5OTIzODcxNTg4MjExMjQzMTk0MTA3ODIwMTk3NjA5NzE0NTc3MTg5MTY3ODY4MTA5NzI2ODcyOTQxOTkwNTQ2MjAxMDQyNSIsIjIxNzEyMzk5MzQ5OTkyNjY3ODUwNTU4MTQxNjk4MjEwODg3NTQ0Nzg5ODExMjg1ODM0MTkwNjM4OTY3MjU1MDYzMDE1MjU1MjA0MzM5Il0sWyIxIiwiMCJdXSwicGlfYyI6WyIxODY0MzI1OTM4OTM0OTAwNDg2MDc0NDM2OTM2NzUzMTIzMzMyNDUzNDYxMDA1NDMwNDQ1MTY2MzA5MjcwMDU3NTAxNDM3MTUyNDI4NCIsIjM1NTU0MDQ0NDUyMTQ1MjY3MTM2MzI3NzQwMzc2Mjk3NTg1Mzg0MTUwMDEwOTUzMjU1Nzk0MTU1MDA2MjMzOTkzMjc2NTc4NDExNzYiLCIxIl0sInByb3RvY29sIjoiZ3JvdGgxNiJ9LCJwdWJfc2lnbmFscyI6WyI2NTY4MTg3MzA2MjkzMDczMTc1MTE0MjY3NTA0NzExNjgyODEyOTA0NTk4MzY4NDkwOTA0NTczNzQyNDk1MTI2MDYzMjk0NDgxOTM4IiwiMTg2NTYxNDc1NDY2NjY5NDQ0ODQ0NTM4OTkyNDE5MTY0Njk1NDQwOTAyNTg4MTAxOTI4MDM5NDk1MjI3OTQ0OTA0OTMyNzEwMDUzMTMiLCIzNzk5NDkxNTAxMzAyMTQ3MjM0MjA1ODk2MTA5MTExNjE4OTU0OTU2NDc3ODkwMDY2NDk3ODUyNjQ3MzgxNDEyOTkxMzU0MTQyNzIiXX0`,
+    expect(token.alg).toEqual(Groth16);
+    const provingKey = fs.readFileSync('./test/data/authV2/circuit_final.zkey');
+    const wasm = fs.readFileSync('./test/data/authV2/circuit.wasm');
+    const verificationKey = fs.readFileSync(
+      './test/data/authV2/verification_key.json',
     );
-    isValid = await parsedToken.verify(verificationKey);
+    const tokenStr = await token.prove(provingKey, wasm);
+
+    const isValid = await token.verify(verificationKey);
+
     expect(isValid).toBeTruthy();
+    const parsedToken = await Token.parse(tokenStr);
+    expect(await parsedToken.verify(verificationKey)).toBeTruthy();
   });
+
   test('parse and verify', async () => {
-    let verificationKey = fs.readFileSync('./test/data/verification_key.json');
-
-    let parsedToken = await Token.parse(
-      `eyJhbGciOiJncm90aDE2IiwiY2lyY3VpdElkIjoiYXV0aCIsImNyaXQiOlsiY2lyY3VpdElkIl0sInR5cCI6IkpXWiJ9.eyJpZCI6Ijg1MDdiMWY2LTZhYTgtNDdjYi1hZWNhLWM3MWY2ZTY5MDMzYyIsInRoaWQiOiI4NTA3YjFmNi02YWE4LTQ3Y2ItYWVjYS1jNzFmNmU2OTAzM2MiLCJmcm9tIjoiMTEyNUdKcWd3NllFc0tGd2o2M0dZODdNTXhQTDlrd0RLeFBVaXdNTE5aIiwidHlwIjoiYXBwbGljYXRpb24vaWRlbjNjb21tLXBsYWluLWpzb24iLCJ0eXBlIjoiaHR0cHM6Ly9pZGVuMy1jb21tdW5pY2F0aW9uLmlvL2F1dGhvcml6YXRpb24vMS4wL3JlcXVlc3QiLCJib2R5Ijp7InJlYXNvbiI6InRlc3QgZmxvdyIsIm1lc3NhZ2UiOiIiLCJjYWxsYmFja1VybCI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9hcGkvY2FsbGJhY2s_c2Vzc2lvbklkPTEiLCJzY29wZSI6W119fQ.eyJwcm9vZiI6eyJwaV9hIjpbIjIwNTgyODQwNTg5NDMzNDI3NTYwMDEzNjA1MzMxMzMzOTQ1MTUwMDc5ODE0NzgyNTU1OTczNDU1Nzg1NTg4MTc3OTEzODI3MzkwODI2IiwiMTg4NTkyMDY2MzY5MTcyNDI4NjI4NDI4MjU0MjA0OTU5NjUzNDk0MjkxODg4Mjc5NjU2MjE5NDYwMjcyMTYxNzAwMDg4MjI1ODg4MDUiLCIxIl0sInBpX2IiOltbIjgzNjU3Njc2ODEzNTI1MjY2MjUzNDAwOTkxMDI1NDg4NjE4NDQ0OTY0OTczNDA1NTQ3MDc1Mzg4NjAwMDA2ODI2OTY1ODg2Mzk5NjMiLCIyMTQ0NzU5ODU0MDk0NDk3NDAyODMxMjEyMTM3MTAzMzgwMjQ4NTY3Nzk3OTMzODIyNjkxOTk1Njc3NTAzMDEzMjk1MDY0MDc0OTkzMCJdLFsiNDc0NjQ5OTIzODcxNTg4MjExMjQzMTk0MTA3ODIwMTk3NjA5NzE0NTc3MTg5MTY3ODY4MTA5NzI2ODcyOTQxOTkwNTQ2MjAxMDQyNSIsIjIxNzEyMzk5MzQ5OTkyNjY3ODUwNTU4MTQxNjk4MjEwODg3NTQ0Nzg5ODExMjg1ODM0MTkwNjM4OTY3MjU1MDYzMDE1MjU1MjA0MzM5Il0sWyIxIiwiMCJdXSwicGlfYyI6WyIxODY0MzI1OTM4OTM0OTAwNDg2MDc0NDM2OTM2NzUzMTIzMzMyNDUzNDYxMDA1NDMwNDQ1MTY2MzA5MjcwMDU3NTAxNDM3MTUyNDI4NCIsIjM1NTU0MDQ0NDUyMTQ1MjY3MTM2MzI3NzQwMzc2Mjk3NTg1Mzg0MTUwMDEwOTUzMjU1Nzk0MTU1MDA2MjMzOTkzMjc2NTc4NDExNzYiLCIxIl0sInByb3RvY29sIjoiZ3JvdGgxNiJ9LCJwdWJfc2lnbmFscyI6WyI2NTY4MTg3MzA2MjkzMDczMTc1MTE0MjY3NTA0NzExNjgyODEyOTA0NTk4MzY4NDkwOTA0NTczNzQyNDk1MTI2MDYzMjk0NDgxOTM4IiwiMTg2NTYxNDc1NDY2NjY5NDQ0ODQ0NTM4OTkyNDE5MTY0Njk1NDQwOTAyNTg4MTAxOTI4MDM5NDk1MjI3OTQ0OTA0OTMyNzEwMDUzMTMiLCIzNzk5NDkxNTAxMzAyMTQ3MjM0MjA1ODk2MTA5MTExNjE4OTU0OTU2NDc3ODkwMDY2NDk3ODUyNjQ3MzgxNDEyOTkxMzU0MTQyNzIiXX0`,
+    const verificationKey = fs.readFileSync(
+      './test/data/authv2/verification_key.json',
     );
-    const isValid = await parsedToken.verify(verificationKey);
-    expect(isValid).toBeTruthy();
-  });
 
+    const token = await Token.parse(
+      `eyJhbGciOiJncm90aDE2IiwiY2lyY3VpdElkIjoiYXV0aFYyIiwiY3JpdCI6WyJjaXJjdWl0SWQiXSwidHlwIjoiSldaIn0.bXltZXNzYWdl.eyJwcm9vZiI6eyJwaV9hIjpbIjE5MTU5MDg5MTAwMDkzNDQyMzY0NTY0MjQxOTA3ODQ1MzkxODgxMzM5NDQ3NDkxNTcwNjg2NTk5NDE3MjA0MzUwNTE1ODE0NzYxNDE1IiwiNDQ4MDg2MzgzNDY4MTU2ODM2MTI2NTI1NzgzMzkyMjk1OTE1Mzg5OTQwNDUzMDkxNjcxNTA5NjEyMzg3NTU1MzY0NjM3NjMwNTQzOSIsIjEiXSwicGlfYiI6W1siMTA3MjY0OTYxNTk4OTQwNDAyNTExMDYyMDkyOTA5MjUzOTQ3MDU1MTk0NTYyNTkyMDYwNjgxMTE0MTY4ODQyMDI2MzI0MzY4Nzk1MDAiLCIzODkwMTY0OTc1OTMzOTQzMDY2NTc5ODI3OTk2MDcxNzI0NDg5NjEwNDU1ODQ0NTU5NDQ2MDIwMTk4ODQyNDQwNzk5MzAyNzQyOTk5Il0sWyIxOTY4NjI5MDk3ODAzMzI1MTU1MjczMjAzNTMxMzIyODYwNTE0Mzc3OTUwOTkwNTk1OTAxMTcxODUwNDI1ODQ3NjgxNzY0MzU2NTM1IiwiNDU2OTY3NjE1OTg3MjgwNDYwOTQzMzcyMTcxODAxNjc2MzE2NDczNTQwMzA5Njg4NjE1OTIxMTg0NjA1MDE3MDY1OTk1MTE3NjU4MSJdLFsiMSIsIjAiXV0sInBpX2MiOlsiMTc4ODM0NTM4NjIxNDI2ODI2MjUwNjI3MDA5NTEzMTU0ODQ4OTUyMDA0OTI3MDgwOTk4MzcwNzM1NjAyNzYxNzk4OTM5MzQ5NzQ2MjEiLCI3NzU4ODI2NjAwNTM2MDU3MDUwNTc2MDMxMDE4NjQ0MDk4NjQyODMxMTE5MzQ2ODM3NjgyMTMzNDU5MjgyMjg4NzExMjgyMzA2NjM4IiwiMSJdLCJwcm90b2NvbCI6Imdyb3RoMTYifSwicHViX3NpZ25hbHMiOlsiMTkyMjkwODQ4NzM3MDQ1NTAzNTcyMzI4ODcxNDI3NzQ2MDU0NDIyOTczMzcyMjkxNzY1NzkyMjkwMTEzNDIwOTE1OTQxNzQ5NzciLCI2MTEwNTE3NzY4MjQ5NTU5MjM4MTkzNDc3NDM1NDU0NzkyMDI0NzMyMTczODY1NDg4OTAwMjcwODQ5NjI0MzI4NjUwNzY1NjkxNDk0IiwiMTI0MzkwNDcxMTQyOTk2MTg1ODc3NDIyMDY0NzYxMDcyNDI3Mzc5ODkxODQ1Nzk5MTQ4NjAzMTU2NzI0NDEwMDc2NzI1OTIzOTc0NyJdfQ`,
+    );
+    const isValid = await token.verify(verificationKey);
+    expect(isValid).toBeTruthy();
+
+    const proofByte = base64.parse(
+      'eyJwcm9vZiI6eyJwaV9hIjpbIjE5MTU5MDg5MTAwMDkzNDQyMzY0NTY0MjQxOTA3ODQ1MzkxODgxMzM5NDQ3NDkxNTcwNjg2NTk5NDE3MjA0MzUwNTE1ODE0NzYxNDE1IiwiNDQ4MDg2MzgzNDY4MTU2ODM2MTI2NTI1NzgzMzkyMjk1OTE1Mzg5OTQwNDUzMDkxNjcxNTA5NjEyMzg3NTU1MzY0NjM3NjMwNTQzOSIsIjEiXSwicGlfYiI6W1siMTA3MjY0OTYxNTk4OTQwNDAyNTExMDYyMDkyOTA5MjUzOTQ3MDU1MTk0NTYyNTkyMDYwNjgxMTE0MTY4ODQyMDI2MzI0MzY4Nzk1MDAiLCIzODkwMTY0OTc1OTMzOTQzMDY2NTc5ODI3OTk2MDcxNzI0NDg5NjEwNDU1ODQ0NTU5NDQ2MDIwMTk4ODQyNDQwNzk5MzAyNzQyOTk5Il0sWyIxOTY4NjI5MDk3ODAzMzI1MTU1MjczMjAzNTMxMzIyODYwNTE0Mzc3OTUwOTkwNTk1OTAxMTcxODUwNDI1ODQ3NjgxNzY0MzU2NTM1IiwiNDU2OTY3NjE1OTg3MjgwNDYwOTQzMzcyMTcxODAxNjc2MzE2NDczNTQwMzA5Njg4NjE1OTIxMTg0NjA1MDE3MDY1OTk1MTE3NjU4MSJdLFsiMSIsIjAiXV0sInBpX2MiOlsiMTc4ODM0NTM4NjIxNDI2ODI2MjUwNjI3MDA5NTEzMTU0ODQ4OTUyMDA0OTI3MDgwOTk4MzcwNzM1NjAyNzYxNzk4OTM5MzQ5NzQ2MjEiLCI3NzU4ODI2NjAwNTM2MDU3MDUwNTc2MDMxMDE4NjQ0MDk4NjQyODMxMTE5MzQ2ODM3NjgyMTMzNDU5MjgyMjg4NzExMjgyMzA2NjM4IiwiMSJdLCJwcm90b2NvbCI6Imdyb3RoMTYifSwicHViX3NpZ25hbHMiOlsiMTkyMjkwODQ4NzM3MDQ1NTAzNTcyMzI4ODcxNDI3NzQ2MDU0NDIyOTczMzcyMjkxNzY1NzkyMjkwMTEzNDIwOTE1OTQxNzQ5NzciLCI2MTEwNTE3NzY4MjQ5NTU5MjM4MTkzNDc3NDM1NDU0NzkyMDI0NzMyMTczODY1NDg4OTAwMjcwODQ5NjI0MzI4NjUwNzY1NjkxNDk0IiwiMTI0MzkwNDcxMTQyOTk2MTg1ODc3NDIyMDY0NzYxMDcyNDI3Mzc5ODkxODQ1Nzk5MTQ4NjAzMTU2NzI0NDEwMDc2NzI1OTIzOTc0NyJdfQ',
+      { loose: true },
+    );
+    const zkProof = JSON.parse(new TextDecoder().decode(proofByte));
+
+    expect(zkProof.pub_signals).toEqual(token.zkProof.pub_signals);
+    expect(zkProof.proof).toEqual(token.zkProof.proof);
+    expect(AuthV2Circuit).toEqual(token.circuitId);
+    expect(Groth16).toEqual(token.alg);
+  });
 });
