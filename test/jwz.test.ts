@@ -60,7 +60,7 @@ describe('js jws', () => {
 
   test('parse and verify', async () => {
     const verificationKey = fs.readFileSync(
-      './test/data/authv2/verification_key.json',
+      './test/data/authV2/verification_key.json',
     );
 
     const token = await Token.parse(
