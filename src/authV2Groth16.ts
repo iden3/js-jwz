@@ -5,9 +5,9 @@ import { Hash, newHashFromString } from '@iden3/js-merkletree';
 
 // AuthV2PubSignals auth.circom public signals
 export interface AuthV2PubSignals {
-  userId: Id;
+  userID: Id;
   challenge: bigint;
-  globalSmtRoot: Hash;
+  GISTRoot: Hash;
 }
 
 export const AuthV2Groth16Alg = new ProvingMethodAlg(Groth16, AuthV2Circuit);
@@ -55,9 +55,9 @@ export class ProvingMethodGroth16AuthV2 implements ProvingMethod {
     }
 
     return {
-      userId: Id.fromBigInt(BigInt(pubSignals[0])),
+      userID: Id.fromBigInt(BigInt(pubSignals[0])),
       challenge: BigInt(pubSignals[1]),
-      globalSmtRoot: newHashFromString(pubSignals[2]),
+      GISTRoot: newHashFromString(pubSignals[2]),
     };
   }
 }
