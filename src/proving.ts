@@ -9,6 +9,14 @@ export interface ProofData {
   protocol: string;
 }
 
+export class ProvingMethodAlg {
+  constructor(public readonly alg: string, public readonly circuitId: string) {}
+
+  toString(): string {
+    return `${this.alg}:${this.circuitId}`;
+  }
+}
+
 const provingMethods = new Map<string, () => ProvingMethod>(); // map[string]func() ProvingMethod{}
 
 // ProvingMethod can be used add new methods for signing or verifying tokens.
@@ -26,6 +34,8 @@ export interface ProvingMethod {
     wasm: Uint8Array,
   ): Promise<ZKProof>;
 
+  readonly methodAlg: ProvingMethodAlg;
+
   readonly alg: string;
   // Returns the alg identifier for this method (example: 'AUTH-GROTH-16')
   readonly circuitId: string;
@@ -34,19 +44,21 @@ export interface ProvingMethod {
 // RegisterProvingMethod registers the "alg" name and a factory function for proving method.
 // This is typically done during init() in the method's implementation
 export function registerProvingMethod(
-  alg: string,
+  alg: ProvingMethodAlg,
   f: () => ProvingMethod,
 ): Promise<void> {
   return new Promise((res) => {
-    provingMethods.set(alg, f);
+    provingMethods.set(alg.toString(), f);
     res();
   });
 }
 
 // GetProvingMethod retrieves a proving method from an "alg" string
-export function getProvingMethod(alg: string): Promise<ProvingMethod> {
+export function getProvingMethod(
+  alg: ProvingMethodAlg,
+): Promise<ProvingMethod> {
   return new Promise((res, rej) => {
-    const func = provingMethods.get(alg);
+    const func = provingMethods.get(alg.toString());
     if (func) {
       const method: ProvingMethod = func();
       res(method);
@@ -57,7 +69,9 @@ export function getProvingMethod(alg: string): Promise<ProvingMethod> {
 }
 
 export function getAlgorithms(): Promise<string[]> {
-  return Promise.resolve(Array.from(provingMethods.keys()));
+  return Promise.resolve(
+    Array.from(provingMethods.keys()).map((k) => k.split(':')[0]),
+  );
 }
 
 // ProofInputsPreparerHandlerFunc prepares inputs using hash message and circuit id

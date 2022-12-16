@@ -1,25 +1,27 @@
-import { toBigEndian } from './core/util';
 import { hash } from './hash';
 import {
   ZKProof,
   ProvingMethod,
+  ProvingMethodAlg,
   ProofInputsPreparerHandlerFunc,
   getProvingMethod,
   prepare,
 } from './proving';
 
 import { base64url as base64 } from 'rfc4648';
+import { toBigEndian } from '@iden3/js-iden3-core';
 
-// HeaderType is 'typ' header, so we can set specific typ
-export const headerType = 'typ'; // we allow to set typ of token
-export const headerCritical = 'crit';
-export const headerAlg = 'alg';
-export const headerCircuitId = 'circuitId';
+export enum Header {
+  Type = 'typ',
+  Alg = 'alg',
+  CircuitId = 'circuitId',
+  Critical = 'crit',
+}
 
 export interface IRawJSONWebZeroknowledge {
   payload: Uint8Array;
   protectedHeaders: Uint8Array;
-  header: { [key: string]: any };
+  header: { [key: string]: unknown };
   zkp: Uint8Array;
 
   sanitized(): Promise<Token>;
@@ -29,7 +31,7 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
   constructor(
     public payload: Uint8Array,
     public protectedHeaders: Uint8Array,
-    public header: { [key: string]: any },
+    public header: { [key: string]: unknown },
     public zkp: Uint8Array,
   ) {}
 
@@ -38,11 +40,11 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
       throw new Error('iden3/js-jwz: missing payload in JWZ message');
     }
 
-    const headers: any = JSON.parse(
+    const headers: { [key: string]: unknown } = JSON.parse(
       new TextDecoder().decode(this.protectedHeaders),
     );
-    const criticalHeaders = headers[headerCritical];
-    criticalHeaders.forEach((key) => {
+    const criticalHeaders = headers[Header.Critical] as string[];
+    criticalHeaders.forEach((key: string) => {
       if (!headers[key]) {
         throw new Error(
           `iden3/js-jwz: header is listed in critical ${key}, but not presented`,
@@ -50,9 +52,10 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
       }
     });
 
-    const alg = headers[headerAlg];
-    const method = await getProvingMethod(alg);
-    const circuitId = headers[headerCircuitId];
+    const alg = headers[Header.Alg] as string;
+    const circuitId = headers[Header.CircuitId] as string;
+
+    const method = await getProvingMethod(new ProvingMethodAlg(alg, circuitId));
     const zkp = JSON.parse(new TextDecoder().decode(this.zkp));
     const token = new Token(method, new TextDecoder().decode(this.payload));
     token.alg = alg;
@@ -96,10 +99,10 @@ export class Token {
 
   private getDefaultHeaders(): { [key: string]: string | string[] } {
     return {
-      [headerAlg]: this.alg,
-      [headerCritical]: [headerCircuitId],
-      [headerCircuitId]: this.circuitId,
-      [headerType]: 'JWZ',
+      [Header.Alg]: this.alg,
+      [Header.Critical]: [Header.CircuitId],
+      [Header.CircuitId]: this.circuitId,
+      [Header.Type]: 'JWZ',
     };
   }
 
@@ -209,7 +212,7 @@ export class Token {
 
     const hashInt: bigint = await hash(messageToProof);
 
-    return toBigEndian(hashInt);
+    return toBigEndian(hashInt, 32);
   }
 
   // Verify  perform zero knowledge verification.
@@ -218,6 +221,7 @@ export class Token {
     const msgHash = await this.getMessageHash();
 
     // 2. verify that zkp is valid
+
     return this.method.verify(msgHash, this.zkProof, verificationKey);
   }
 
