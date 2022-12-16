@@ -5,6 +5,7 @@ import {
   getProvingMethod,
   ProofInputsPreparerHandlerFunc,
   ProvingMethod,
+  ProvingMethodAlg,
   registerProvingMethod,
 } from './proving';
 import { provingMethodGroth16AuthV2Instance } from './authV2Groth16';
@@ -30,6 +31,7 @@ export {
   proving,
   ProofInputsPreparerHandlerFunc,
   ProvingMethod,
+  ProvingMethodAlg,
   Token,
   hash,
   Header,
