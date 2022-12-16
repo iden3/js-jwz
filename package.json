@@ -5,19 +5,24 @@
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "source": "./src/index.ts",
+  "esm:esbuild": "dist/esm_esbuild/index.js",
   "typings": "dist/types/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "config",
+    "scripts",
+    "src",
+    "tsconfig.json"
   ],
   "scripts": {
+    "build": "npm run clean && npm run build:esm && npm run build:umd && npm run build:esm:esbuild && npm run build:tsc",
+    "build:esm:esbuild": "node ./scripts/esm.config.js",
+    "build:esm": "tsc -p config/tsconfig.esm.json",
+    "build:umd": "node ./scripts/umd.config.js",
+    "build:tsc": "tsc --module commonjs",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint --fix --ext .js,.ts src/**",
-    "build": "npm run clean && npm run build:esm && npm run build:umd && npm run build:tsc",
-    "build:esm": "node ./scripts/esm.config.js",
-    "build:umd": "node ./scripts/umd.config.js",
-    "build:tsc": "tsc --module commonjs",
-    "clean": "rimraf ./dist",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "repository": {
@@ -34,9 +39,9 @@
     "base58-js": "^1.0.0",
     "cross-sha256": "^1.2.0",
     "rfc4648": "^1.5.2",
-    "@iden3/js-crypto": "file:./iden3-js-crypto-0.0.1.tgz",
-    "@iden3/js-iden3-core": "file:./iden3-js-iden3-core-0.0.2.tgz",
-    "@iden3/js-merkletree": "file:./iden3-js-merkletree-0.0.1.tgz",
+    "@iden3/js-crypto": "git@github.com:iden3/js-crypto.git",
+    "@iden3/js-iden3-core": "git@github.com:iden3/js-iden3-core.git",
+    "@iden3/js-merkletree": "git@github.com:iden3/js-merkletree.git",
     "snarkjs": "^0.4.19"
   },
   "browserslist": {
@@ -69,7 +74,6 @@
     "prettier": "^2.3.2",
     "ts-jest": "^29.0.3",
     "ts-node": "^10.0.0",
-    "tsconfig-paths": "^3.10.1",
     "typescript": "^4.3.5"
   }
 }

@@ -2,14 +2,15 @@ import { Groth16, AuthV2Circuit } from './../src/common';
 
 import { ProofInputsPreparerHandlerFunc, proving } from '../src/index';
 import { Token } from './../src/jwz';
-import { getCurveFromName } from 'ffjavascript';
+const getCurveFromName = require('ffjavascript').getCurveFromName;
+import { base64url as base64 } from 'rfc4648';
 
 import * as fs from 'fs';
 
 afterAll(async () => {
   const curve = await getCurveFromName('bn128');
   curve.terminate();
-});import { base64url as base64 } from 'rfc4648';
+});
 
 describe('js jws', () => {
   let mock: ProofInputsPreparerHandlerFunc;

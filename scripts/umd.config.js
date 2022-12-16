@@ -2,7 +2,7 @@ const esbuild = require('esbuild');
 const baseConfig = require('./base.config');
 const pkg = require('../package.json');
 
-const name = 'Iden3JWZ';
+const name = 'JWZ';
 
 esbuild.build({
     ...baseConfig,
@@ -10,6 +10,7 @@ esbuild.build({
     format: 'iife',
     outfile: pkg.main.replace('cjs', 'umd'),
     globalName: name
-}).catch(() => {
+}).catch((err) => {
+    console.error(err);
     return process.exit(1);
 });

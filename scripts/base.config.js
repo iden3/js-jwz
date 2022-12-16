@@ -5,15 +5,15 @@ const esmConfig = {
   plugins: [
     NodeGlobalPolyfills({
       process: true,
-      buffer: true
+      buffer: true,
     }),
-    NodeModulesPolyfills()
+    NodeModulesPolyfills(),
   ],
   entryPoints: ['src/index.ts'],
   bundle: true,
   sourcemap: true,
   target: 'esnext',
-  outfile: pkg.module,
+  outfile: pkg['esm:esbuild'],
   format: 'esm',
 };
 module.exports = esmConfig;
