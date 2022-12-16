@@ -15,6 +15,7 @@
     "tsconfig.json"
   ],
   "scripts": {
+    "clean": "rimraf ./dist",
     "build": "npm run clean && npm run build:esm && npm run build:umd && npm run build:esm:esbuild && npm run build:tsc",
     "build:esm:esbuild": "node ./scripts/esm.config.js",
     "build:esm": "tsc -p config/tsconfig.esm.json",
