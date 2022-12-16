@@ -8,7 +8,7 @@ import {
   ProvingMethodAlg,
   registerProvingMethod,
   ZKProof,
-  ProofData
+  ProofData,
 } from './proving';
 import { provingMethodGroth16AuthV2Instance } from './authV2Groth16';
 
