@@ -45,7 +45,7 @@
     "@iden3/js-crypto": "git@github.com:iden3/js-crypto.git",
     "@iden3/js-iden3-core": "git@github.com:iden3/js-iden3-core.git",
     "@iden3/js-merkletree": "git@github.com:iden3/js-merkletree.git",
-    "snarkjs": "^0.4.19"
+    "snarkjs": "0.5.0"
   },
   "browserslist": {
     "production": [
