@@ -158,7 +158,7 @@ export class Token {
     if (!this.inputsPreparer) {
       throw new Error('iden3/jwz: prepare func must be defined');
     }
-    const inputs: Uint8Array = prepare(
+    const inputs: Uint8Array = await prepare(
       this.inputsPreparer,
       msgHash,
       this.circuitId,

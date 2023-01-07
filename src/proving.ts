@@ -78,13 +78,13 @@ export function getAlgorithms(): Promise<string[]> {
 export type ProofInputsPreparerHandlerFunc = (
   hash: Uint8Array,
   circuitId: string,
-) => Uint8Array;
+) => Promise<Uint8Array>;
 
 // Prepare function is responsible to call provided handler for inputs preparation
 export function prepare(
   f: ProofInputsPreparerHandlerFunc,
   hash: Uint8Array,
   circuitId: string,
-): Uint8Array {
+): Promise<Uint8Array> {
   return f(hash, circuitId);
 }
