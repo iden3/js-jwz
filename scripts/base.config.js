@@ -12,7 +12,7 @@ const esmConfig = {
   entryPoints: ['src/index.ts'],
   bundle: true,
   sourcemap: true,
-  target: 'esnext',
+  target: 'es2020',
   outfile: pkg['esm:esbuild'],
   format: 'esm',
 };

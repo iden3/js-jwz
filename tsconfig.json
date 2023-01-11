@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "moduleResolution": "node",
-    "target": "esnext",
+    "target": "es2020",
     "module": "es6",
-    "lib": ["esnext", "dom"],
+    "lib": ["es2020", "dom"],
     "allowJs": true,
     "esModuleInterop": true,
     "noImplicitAny": false,
