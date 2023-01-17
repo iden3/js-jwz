@@ -1,6 +1,6 @@
 {
   "name": "@iden3/js-jwz",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "JS implementation of JWZ",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -8,11 +8,7 @@
   "esm:esbuild": "dist/esm_esbuild/index.js",
   "typings": "dist/types/index.d.ts",
   "files": [
-    "dist",
-    "config",
-    "scripts",
-    "src",
-    "tsconfig.json"
+    "dist"
   ],
   "scripts": {
     "clean": "rimraf ./dist",
@@ -41,9 +37,9 @@
     "base58-js": "^1.0.0",
     "cross-sha256": "^1.2.0",
     "rfc4648": "^1.5.2",
-    "@iden3/js-crypto": "0.0.2",
-    "@iden3/js-iden3-core": "0.0.2",
-    "@iden3/js-merkletree": "0.0.1",
+    "@iden3/js-crypto": "0.0.3",
+    "@iden3/js-iden3-core": "0.0.3",
+    "@iden3/js-merkletree": "0.0.2",
     "snarkjs": "0.5.0"
   },
   "browserslist": {
