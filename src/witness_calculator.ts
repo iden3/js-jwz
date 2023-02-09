@@ -1,24 +1,25 @@
+/* eslint-disable require-await */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-console */
-export async function witnessBuilder(code, options = {}) {
+export async function witnessBuilder(code, options?) {
   options = options || {};
 
   let wasmModule;
   try {
     wasmModule = await WebAssembly.compile(code);
   } catch (err) {
+    console.log(err);
     console.log(
-      err,
-
       '\nTry to run circom --c in order to generate c++ code instead\n',
     );
-    throw new Error(err instanceof Error ? err.message : err?.toString());
+    throw new Error(err);
   }
+
+  let wc;
 
   let errStr = '';
   let msgStr = '';
 
-  const instance: any = await WebAssembly.instantiate(wasmModule, {
+  const instance = await WebAssembly.instantiate(wasmModule, {
     runtime: {
       exceptionHandler: function (code) {
         let err;
@@ -65,24 +66,35 @@ export async function witnessBuilder(code, options = {}) {
   });
 
   const sanityCheck = options;
-  return new WitnessCalculator(instance, sanityCheck);
+  //        options &&
+  //        (
+  //            options.sanityCheck ||
+  //            options.logGetSignal ||
+  //            options.logSetSignal ||
+  //            options.logStartComponent ||
+  //            options.logFinishComponent
+  //        );
+
+  wc = new WitnessCalculator(instance, sanityCheck);
+  return wc;
 
   function getMessage() {
-    let message = '';
-    let c = instance.exports.getMessageChar();
+    var message = '';
+    var c = (instance as any).exports.getMessageChar();
     while (c != 0) {
       message += String.fromCharCode(c);
-      c = instance.exports.getMessageChar();
+      c = (instance as any).exports.getMessageChar();
     }
     return message;
   }
 
   function printSharedRWMemory() {
-    const shared_rw_memory_size = instance.exports.getFieldNumLen32();
+    const shared_rw_memory_size = (instance as any).exports.getFieldNumLen32();
     const arr = new Uint32Array(shared_rw_memory_size);
     for (let j = 0; j < shared_rw_memory_size; j++) {
-      arr[shared_rw_memory_size - 1 - j] =
-        instance.exports.readSharedRWMemory(j);
+      arr[shared_rw_memory_size - 1 - j] = (
+        instance as any
+      ).exports.readSharedRWMemory(j);
     }
 
     // If we've buffered other content, put a space in between the items
@@ -95,43 +107,50 @@ export async function witnessBuilder(code, options = {}) {
 }
 
 class WitnessCalculator {
-  version: number;
-  n32: number;
-  prime: bigint;
-  witnessSize: number;
-  constructor(public instance, public sanityCheck) {
+  version: any;
+  n32: any;
+  prime: any;
+  witnessSize: any;
+  sanityCheck: any;
+  constructor(private instance, sanityCheck) {
     this.instance = instance;
+    this.version = (this.instance.exports as any).getVersion();
+    this.n32 = (this.instance.exports as any).getFieldNumLen32();
 
-    this.version = this.instance.exports.getVersion();
-    this.n32 = this.instance.exports.getFieldNumLen32();
-
-    this.instance.exports.getRawPrime();
+    (this.instance.exports as any).getRawPrime();
     const arr = new Uint32Array(this.n32);
     for (let i = 0; i < this.n32; i++) {
-      arr[this.n32 - 1 - i] = this.instance.exports.readSharedRWMemory(i);
+      arr[this.n32 - 1 - i] = (this.instance.exports as any).readSharedRWMemory(
+        i,
+      );
     }
     this.prime = fromArray32(arr);
 
-    this.witnessSize = this.instance.exports.getWitnessSize();
+    this.witnessSize = (this.instance.exports as any).getWitnessSize();
 
     this.sanityCheck = sanityCheck;
   }
 
   circom_version() {
-    return this.instance.exports.getVersion();
+    return (this.instance.exports as any).getVersion();
   }
 
   async _doCalculateWitness(input, sanityCheck) {
     //input is assumed to be a map from signals to arrays of bigints
-    this.instance.exports.init(this.sanityCheck || sanityCheck ? 1 : 0);
+    (this.instance.exports as any).init(
+      this.sanityCheck || sanityCheck ? 1 : 0,
+    );
     const keys = Object.keys(input);
-    let input_counter = 0;
+    var input_counter = 0;
     keys.forEach((k) => {
       const h = fnvHash(k);
       const hMSB = parseInt(h.slice(0, 8), 16);
       const hLSB = parseInt(h.slice(8, 16), 16);
       const fArr = flatArray(input[k]);
-      const signalSize = this.instance.exports.getInputSignalSize(hMSB, hLSB);
+      let signalSize = (this.instance.exports as any).getInputSignalSize(
+        hMSB,
+        hLSB,
+      );
       if (signalSize < 0) {
         throw new Error(`Signal ${k} not found\n`);
       }
@@ -144,34 +163,41 @@ class WitnessCalculator {
       for (let i = 0; i < fArr.length; i++) {
         const arrFr = toArray32(BigInt(fArr[i]) % this.prime, this.n32);
         for (let j = 0; j < this.n32; j++) {
-          this.instance.exports.writeSharedRWMemory(j, arrFr[this.n32 - 1 - j]);
+          (this.instance.exports as any).writeSharedRWMemory(
+            j,
+            arrFr[this.n32 - 1 - j],
+          );
         }
         try {
-          this.instance.exports.setInputSignal(hMSB, hLSB, i);
+          (this.instance.exports as any).setInputSignal(hMSB, hLSB, i);
           input_counter++;
         } catch (err) {
           // console.log(`After adding signal ${i} of ${k}`)
-          throw new Error(err?.toString());
+          throw new Error(err);
         }
       }
     });
-    if (input_counter < this.instance.exports.getInputSize()) {
+    if (input_counter < (this.instance.exports as any).getInputSize()) {
       throw new Error(
-        `Not all inputs have been set. Only ${input_counter} out of ${this.instance.exports.getInputSize()}`,
+        `Not all inputs have been set. Only ${input_counter} out of ${(
+          this.instance.exports as any
+        ).getInputSize()}`,
       );
     }
   }
 
   async calculateWitness(input, sanityCheck) {
-    const w: any = [];
+    const w: bigint[] = [];
 
     await this._doCalculateWitness(input, sanityCheck);
 
     for (let i = 0; i < this.witnessSize; i++) {
-      this.instance.exports.getWitness(i);
+      (this.instance.exports as any).getWitness(i);
       const arr = new Uint32Array(this.n32);
       for (let j = 0; j < this.n32; j++) {
-        arr[this.n32 - 1 - j] = this.instance.exports.readSharedRWMemory(j);
+        arr[this.n32 - 1 - j] = (
+          this.instance.exports as any
+        ).readSharedRWMemory(j);
       }
       w.push(fromArray32(arr));
     }
@@ -185,10 +211,10 @@ class WitnessCalculator {
     await this._doCalculateWitness(input, sanityCheck);
 
     for (let i = 0; i < this.witnessSize; i++) {
-      this.instance.exports.getWitness(i);
+      (this.instance.exports as any).getWitness(i);
       const pos = i * this.n32;
       for (let j = 0; j < this.n32; j++) {
-        buff32[pos + j] = this.instance.exports.readSharedRWMemory(j);
+        buff32[pos + j] = (this.instance.exports as any).readSharedRWMemory(j);
       }
     }
 
@@ -228,7 +254,7 @@ class WitnessCalculator {
     //prime number
     this.instance.exports.getRawPrime();
 
-    let pos = 7;
+    var pos = 7;
     for (let j = 0; j < this.n32; j++) {
       buff32[pos + j] = this.instance.exports.readSharedRWMemory(j);
     }
@@ -269,7 +295,7 @@ function toArray32(rem, size) {
     rem = rem / radix;
   }
   if (size) {
-    let i = size - res.length;
+    var i = size - res.length;
     while (i > 0) {
       res.unshift(0);
       i--;
@@ -280,7 +306,7 @@ function toArray32(rem, size) {
 
 function fromArray32(arr) {
   //returns a BigInt
-  let res = BigInt(0);
+  var res = BigInt(0);
   const radix = BigInt(0x100000000);
   for (let i = 0; i < arr.length; i++) {
     res = res * radix + BigInt(arr[i]);
@@ -289,7 +315,7 @@ function fromArray32(arr) {
 }
 
 function flatArray(a) {
-  const res = [];
+  var res = [];
   fillArray(res, a);
   return res;
 
@@ -307,13 +333,13 @@ function flatArray(a) {
 function fnvHash(str) {
   const uint64_max = BigInt(2) ** BigInt(64);
   let hash = BigInt('0xCBF29CE484222325');
-  for (let i = 0; i < str.length; i++) {
+  for (var i = 0; i < str.length; i++) {
     hash ^= BigInt(str[i].charCodeAt());
     hash *= BigInt(0x100000001b3);
     hash %= uint64_max;
   }
   let shash = hash.toString(16);
-  const n = 16 - shash.length;
+  let n = 16 - shash.length;
   shash = '0'.repeat(n).concat(shash);
   return shash;
 }
