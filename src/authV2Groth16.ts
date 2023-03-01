@@ -2,6 +2,7 @@ import { Id } from '@iden3/js-iden3-core';
 import { ProvingMethod, ProvingMethodAlg, ZKProof } from './proving';
 import { AuthV2Circuit, Groth16, prove, verify } from './common';
 import { Hash, newHashFromString } from '@iden3/js-merkletree';
+import { getCurveFromName } from 'ffjavascript';
 
 // AuthV2PubSignals auth.circom public signals
 export interface AuthV2PubSignals {
@@ -14,6 +15,8 @@ export const AuthV2Groth16Alg = new ProvingMethodAlg(Groth16, AuthV2Circuit);
 
 // ProvingMethodGroth16AuthV2 instance for Groth16 proving method with an authV2 circuit
 export class ProvingMethodGroth16AuthV2 implements ProvingMethod {
+  private static readonly curveName = 'bn128';
+
   constructor(public readonly methodAlg: ProvingMethodAlg) {}
 
   get alg(): string {
@@ -29,20 +32,30 @@ export class ProvingMethodGroth16AuthV2 implements ProvingMethod {
     proof: ZKProof,
     verificationKey: Uint8Array,
   ): Promise<boolean> {
-    return verify<AuthV2PubSignals>(
+    const verificationResult = await verify<AuthV2PubSignals>(
       messageHash,
       proof,
       verificationKey,
       this.unmarshall,
     );
+    await this.terminateCurve();
+
+    return verificationResult;
   }
 
-  prove(
+  async prove(
     inputs: Uint8Array,
     provingKey: Uint8Array,
     wasm: Uint8Array,
   ): Promise<ZKProof> {
-    return prove(inputs, provingKey, wasm);
+    const zkProof = await prove(inputs, provingKey, wasm);
+    await this.terminateCurve();
+    return zkProof;
+  }
+
+  private async terminateCurve(): Promise<void> {
+    const curve = await getCurveFromName(ProvingMethodGroth16AuthV2.curveName);
+    curve.terminate();
   }
 
   unmarshall(pubSignals: string[]): AuthV2PubSignals {
