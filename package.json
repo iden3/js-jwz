@@ -1,6 +1,6 @@
 {
   "name": "@iden3/js-jwz",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "JS implementation of JWZ",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -40,7 +40,9 @@
     "@iden3/js-crypto": "1.0.0-beta.0",
     "@iden3/js-iden3-core": "1.0.0-beta.0",
     "@iden3/js-merkletree": "1.0.0-beta.0",
-    "snarkjs": "0.5.0"
+    "snarkjs": "0.5.0",
+    "ffjavascript": "^0.2.57"
+
   },
   "browserslist": {
     "production": [
@@ -57,7 +59,6 @@
     ]
   },
   "devDependencies": {
-    "ffjavascript": "^0.2.57",
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
     "@types/jest": "27.4.1",
