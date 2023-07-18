@@ -59,6 +59,7 @@
     ]
   },
   "devDependencies": {
+    "@iden3/eslint-config": "https://github.com/iden3/eslint-config",
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
     "@types/jest": "27.4.1",
