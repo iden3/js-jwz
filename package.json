@@ -38,7 +38,7 @@
     "cross-sha256": "^1.2.0",
     "rfc4648": "^1.5.2",
     "@iden3/js-crypto": "1.0.0",
-    "@iden3/js-iden3-core": "1.0.0",
+    "@iden3/js-iden3-core": "1.0.1",
     "@iden3/js-merkletree": "1.0.0",
     "snarkjs": "0.5.0",
     "ffjavascript": "^0.2.57"
