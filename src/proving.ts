@@ -22,17 +22,9 @@ const provingMethods = new Map<string, () => ProvingMethod>(); // map[string]fun
 // ProvingMethod can be used add new methods for signing or verifying tokens.
 export interface ProvingMethod {
   // Returns true if proof is valid
-  verify(
-    messageHash: Uint8Array,
-    proof: ZKProof,
-    verificationKey: Uint8Array,
-  ): Promise<boolean>;
+  verify(messageHash: Uint8Array, proof: ZKProof, verificationKey: Uint8Array): Promise<boolean>;
   // Returns proof or error
-  prove(
-    inputs: Uint8Array,
-    provingKey: Uint8Array,
-    wasm: Uint8Array,
-  ): Promise<ZKProof>;
+  prove(inputs: Uint8Array, provingKey: Uint8Array, wasm: Uint8Array): Promise<ZKProof>;
 
   readonly methodAlg: ProvingMethodAlg;
 
@@ -45,7 +37,7 @@ export interface ProvingMethod {
 // This is typically done during init() in the method's implementation
 export function registerProvingMethod(
   alg: ProvingMethodAlg,
-  f: () => ProvingMethod,
+  f: () => ProvingMethod
 ): Promise<void> {
   return new Promise((res) => {
     provingMethods.set(alg.toString(), f);
@@ -54,9 +46,7 @@ export function registerProvingMethod(
 }
 
 // GetProvingMethod retrieves a proving method from an "alg" string
-export function getProvingMethod(
-  alg: ProvingMethodAlg,
-): Promise<ProvingMethod> {
+export function getProvingMethod(alg: ProvingMethodAlg): Promise<ProvingMethod> {
   return new Promise((res, rej) => {
     const func = provingMethods.get(alg.toString());
     if (func) {
@@ -69,22 +59,20 @@ export function getProvingMethod(
 }
 
 export function getAlgorithms(): Promise<string[]> {
-  return Promise.resolve(
-    Array.from(provingMethods.keys()).map((k) => k.split(':')[0]),
-  );
+  return Promise.resolve(Array.from(provingMethods.keys()).map((k) => k.split(':')[0]));
 }
 
 // ProofInputsPreparerHandlerFunc prepares inputs using hash message and circuit id
 export type ProofInputsPreparerHandlerFunc = (
   hash: Uint8Array,
-  circuitId: string,
+  circuitId: string
 ) => Promise<Uint8Array>;
 
 // Prepare function is responsible to call provided handler for inputs preparation
 export function prepare(
   f: ProofInputsPreparerHandlerFunc,
   hash: Uint8Array,
-  circuitId: string,
+  circuitId: string
 ): Promise<Uint8Array> {
   return f(hash, circuitId);
 }

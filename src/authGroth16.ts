@@ -24,11 +24,7 @@ class ProvingMethodGroth16Auth implements ProvingMethod {
   unmarshall(pubsignals: string[]): AuthPubSignals {
     const outputs: AuthPubSignals = {} as AuthPubSignals;
     if (pubsignals.length != 3) {
-      throw new Error(
-        `invalid number of Output values expected ${3} got ${
-          pubsignals.length
-        }`,
-      );
+      throw new Error(`invalid number of Output values expected ${3} got ${pubsignals.length}`);
     }
     outputs.challenge = BigInt(pubsignals[0]);
     outputs.userState = BigInt(pubsignals[1]);
@@ -40,24 +36,16 @@ class ProvingMethodGroth16Auth implements ProvingMethod {
   async verify(
     messageHash: Uint8Array,
     proof: ZKProof,
-    verificationKey: Uint8Array,
+    verificationKey: Uint8Array
   ): Promise<boolean> {
-    return verify<AuthPubSignals>(
-      messageHash,
-      proof,
-      verificationKey,
-      this.unmarshall,
-    );
+    return verify<AuthPubSignals>(messageHash, proof, verificationKey, this.unmarshall);
   }
 
-  prove(
-    inputs: Uint8Array,
-    provingKey: Uint8Array,
-    wasm: Uint8Array,
-  ): Promise<ZKProof> {
+  prove(inputs: Uint8Array, provingKey: Uint8Array, wasm: Uint8Array): Promise<ZKProof> {
     return prove(inputs, provingKey, wasm);
   }
 }
 
-export const provingMethodGroth16AuthInstance: ProvingMethod =
-  new ProvingMethodGroth16Auth(new ProvingMethodAlg(Groth16, AuthCircuit));
+export const provingMethodGroth16AuthInstance: ProvingMethod = new ProvingMethodGroth16Auth(
+  new ProvingMethodAlg(Groth16, AuthCircuit)
+);

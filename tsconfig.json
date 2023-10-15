@@ -1,21 +1,18 @@
 {
   "compilerOptions": {
     "moduleResolution": "node",
+    "module": "ES2020",
     "target": "es2020",
-    "module": "es6",
     "lib": ["es2020", "dom"],
     "allowJs": true,
     "esModuleInterop": true,
     "noImplicitAny": false,
     "strict": true,
-    "sourceMap": true,
     "skipLibCheck": true,
-    "declaration": true,
     "allowSyntheticDefaultImports": true,
     "useUnknownInCatchVariables": false,
     "resolveJsonModule": true,
-    "declarationDir": "dist/types",
-    "outDir": "dist/cjs",
+    "rootDir": "src",
     "typeRoots": ["node_modules/@types"]
   },
   "include": ["src"]

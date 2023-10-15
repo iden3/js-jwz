@@ -5,7 +5,7 @@ import {
   ProvingMethodAlg,
   ProofInputsPreparerHandlerFunc,
   getProvingMethod,
-  prepare,
+  prepare
 } from './proving';
 
 import { base64url as base64 } from 'rfc4648';
@@ -15,7 +15,7 @@ export enum Header {
   Type = 'typ',
   Alg = 'alg',
   CircuitId = 'circuitId',
-  Critical = 'crit',
+  Critical = 'crit'
 }
 
 export interface IRawJSONWebZeroknowledge {
@@ -32,7 +32,7 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
     public payload: Uint8Array,
     public protectedHeaders: Uint8Array,
     public header: { [key: string]: unknown },
-    public zkp: Uint8Array,
+    public zkp: Uint8Array
   ) {}
 
   async sanitized(): Promise<Token> {
@@ -41,14 +41,12 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
     }
 
     const headers: { [key: string]: unknown } = JSON.parse(
-      new TextDecoder().decode(this.protectedHeaders),
+      new TextDecoder().decode(this.protectedHeaders)
     );
     const criticalHeaders = headers[Header.Critical] as string[];
     criticalHeaders.forEach((key: string) => {
       if (!headers[key]) {
-        throw new Error(
-          `iden3/js-jwz: header is listed in critical ${key}, but not presented`,
-        );
+        throw new Error(`iden3/js-jwz: header is listed in critical ${key}, but not presented`);
       }
     });
 
@@ -79,7 +77,7 @@ export class Token {
   constructor(
     public readonly method: ProvingMethod,
     payload: string,
-    private readonly inputsPreparer?: ProofInputsPreparerHandlerFunc,
+    private readonly inputsPreparer?: ProofInputsPreparerHandlerFunc
   ) {
     this.alg = this.method.alg;
     this.circuitId = this.method.circuitId;
@@ -102,7 +100,7 @@ export class Token {
       [Header.Alg]: this.alg,
       [Header.Critical]: [Header.CircuitId],
       [Header.CircuitId]: this.circuitId,
-      [Header.Type]: 'JWZ',
+      [Header.Type]: 'JWZ'
     };
   }
 
@@ -110,18 +108,14 @@ export class Token {
   static parse(tokenStr: string): Promise<Token> {
     // Parse parses a jwz message in compact or full serialization format.
     const token = tokenStr?.trim();
-    return token.startsWith('{')
-      ? Token.parseFull(tokenStr)
-      : Token.parseCompact(tokenStr);
+    return token.startsWith('{') ? Token.parseFull(tokenStr) : Token.parseCompact(tokenStr);
   }
 
   // parseCompact parses a message in compact format.
   private static async parseCompact(tokenStr: string): Promise<Token> {
     const parts = tokenStr.split('.');
     if (parts.length != 3) {
-      throw new Error(
-        'iden3/js-jwz: compact JWZ format must have three segments',
-      );
+      throw new Error('iden3/js-jwz: compact JWZ format must have three segments');
     }
     const rawProtected = base64.parse(parts[0], { loose: true });
 
@@ -133,7 +127,7 @@ export class Token {
       rawPayload,
       rawProtected,
       {},
-      proof,
+      proof
     );
 
     return await raw.sanitized();
@@ -158,11 +152,7 @@ export class Token {
     if (!this.inputsPreparer) {
       throw new Error('iden3/jwz: prepare func must be defined');
     }
-    const inputs: Uint8Array = await prepare(
-      this.inputsPreparer,
-      msgHash,
-      this.circuitId,
-    );
+    const inputs: Uint8Array = await prepare(this.inputsPreparer, msgHash, this.circuitId);
 
     const proof: ZKProof = await this.method.prove(inputs, provingKey, wasm);
 
@@ -181,11 +171,11 @@ export class Token {
     }
 
     const serializedProtected = base64.stringify(this.raw.protectedHeaders, {
-      pad: false,
+      pad: false
     });
     const serializedProof = base64.stringify(this.raw.zkp, { pad: false });
     const serializedPayload = base64.stringify(this.raw.payload, {
-      pad: false,
+      pad: false
     });
     return `${serializedProtected}.${serializedPayload}.${serializedProof}`;
   }
@@ -200,15 +190,13 @@ export class Token {
 
     const serializedHeaders = new TextEncoder().encode(serializedHeadersJSON);
     const protectedHeaders = base64.stringify(serializedHeaders, {
-      pad: false,
+      pad: false
     });
 
     const payload = base64.stringify(this.raw.payload, { pad: false });
 
     // JWZ ZkProof input value is ASCII(BASE64URL(UTF8(JWS Protected Header)) || '.' || BASE64URL(JWS Payload)).
-    const messageToProof = new TextEncoder().encode(
-      `${protectedHeaders}.${payload}`,
-    );
+    const messageToProof = new TextEncoder().encode(`${protectedHeaders}.${payload}`);
 
     const hashInt: bigint = await hash(messageToProof);
 

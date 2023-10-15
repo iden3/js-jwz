@@ -8,25 +8,25 @@ import {
   ProvingMethodAlg,
   registerProvingMethod,
   ZKProof,
-  ProofData,
+  ProofData
 } from './proving';
 import { provingMethodGroth16AuthV2Instance } from './authV2Groth16';
 
 registerProvingMethod(
   provingMethodGroth16AuthInstance.methodAlg,
-  () => provingMethodGroth16AuthInstance,
+  () => provingMethodGroth16AuthInstance
 );
 
 registerProvingMethod(
   provingMethodGroth16AuthV2Instance.methodAlg,
-  () => provingMethodGroth16AuthV2Instance,
+  () => provingMethodGroth16AuthV2Instance
 );
 
 const proving = {
   registerProvingMethod,
   getProvingMethod,
   provingMethodGroth16AuthInstance,
-  provingMethodGroth16AuthV2Instance,
+  provingMethodGroth16AuthV2Instance
 };
 
 export {
@@ -38,5 +38,5 @@ export {
   hash,
   ZKProof,
   ProofData,
-  Header,
+  Header
 };

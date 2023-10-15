@@ -30,24 +30,20 @@ export class ProvingMethodGroth16AuthV2 implements ProvingMethod {
   async verify(
     messageHash: Uint8Array,
     proof: ZKProof,
-    verificationKey: Uint8Array,
+    verificationKey: Uint8Array
   ): Promise<boolean> {
     const verificationResult = await verify<AuthV2PubSignals>(
       messageHash,
       proof,
       verificationKey,
-      this.unmarshall,
+      this.unmarshall
     );
     await this.terminateCurve();
 
     return verificationResult;
   }
 
-  async prove(
-    inputs: Uint8Array,
-    provingKey: Uint8Array,
-    wasm: Uint8Array,
-  ): Promise<ZKProof> {
+  async prove(inputs: Uint8Array, provingKey: Uint8Array, wasm: Uint8Array): Promise<ZKProof> {
     const zkProof = await prove(inputs, provingKey, wasm);
     await this.terminateCurve();
     return zkProof;
@@ -62,18 +58,17 @@ export class ProvingMethodGroth16AuthV2 implements ProvingMethod {
     const len = 3;
 
     if (pubSignals.length !== len) {
-      throw new Error(
-        `invalid number of Output values expected ${len} got ${pubSignals.length}`,
-      );
+      throw new Error(`invalid number of Output values expected ${len} got ${pubSignals.length}`);
     }
 
     return {
       userID: Id.fromBigInt(BigInt(pubSignals[0])),
       challenge: BigInt(pubSignals[1]),
-      GISTRoot: newHashFromString(pubSignals[2]),
+      GISTRoot: newHashFromString(pubSignals[2])
     };
   }
 }
 
-export const provingMethodGroth16AuthV2Instance: ProvingMethod =
-  new ProvingMethodGroth16AuthV2(new ProvingMethodAlg(Groth16, AuthV2Circuit));
+export const provingMethodGroth16AuthV2Instance: ProvingMethod = new ProvingMethodGroth16AuthV2(
+  new ProvingMethodAlg(Groth16, AuthV2Circuit)
+);
