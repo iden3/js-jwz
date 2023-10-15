@@ -8,9 +8,7 @@ export async function witnessBuilder(code, options?) {
     wasmModule = await WebAssembly.compile(code);
   } catch (err) {
     console.log(err);
-    console.log(
-      '\nTry to run circom --c in order to generate c++ code instead\n',
-    );
+    console.log('\nTry to run circom --c in order to generate c++ code instead\n');
     throw new Error(err);
   }
 
@@ -61,8 +59,8 @@ export async function witnessBuilder(code, options?) {
       },
       showSharedRWMemory: function () {
         printSharedRWMemory();
-      },
-    },
+      }
+    }
   });
 
   const sanityCheck = options;
@@ -92,9 +90,7 @@ export async function witnessBuilder(code, options?) {
     const shared_rw_memory_size = (instance as any).exports.getFieldNumLen32();
     const arr = new Uint32Array(shared_rw_memory_size);
     for (let j = 0; j < shared_rw_memory_size; j++) {
-      arr[shared_rw_memory_size - 1 - j] = (
-        instance as any
-      ).exports.readSharedRWMemory(j);
+      arr[shared_rw_memory_size - 1 - j] = (instance as any).exports.readSharedRWMemory(j);
     }
 
     // If we've buffered other content, put a space in between the items
@@ -120,9 +116,7 @@ class WitnessCalculator {
     (this.instance.exports as any).getRawPrime();
     const arr = new Uint32Array(this.n32);
     for (let i = 0; i < this.n32; i++) {
-      arr[this.n32 - 1 - i] = (this.instance.exports as any).readSharedRWMemory(
-        i,
-      );
+      arr[this.n32 - 1 - i] = (this.instance.exports as any).readSharedRWMemory(i);
     }
     this.prime = fromArray32(arr);
 
@@ -137,9 +131,7 @@ class WitnessCalculator {
 
   async _doCalculateWitness(input, sanityCheck) {
     //input is assumed to be a map from signals to arrays of bigints
-    (this.instance.exports as any).init(
-      this.sanityCheck || sanityCheck ? 1 : 0,
-    );
+    (this.instance.exports as any).init(this.sanityCheck || sanityCheck ? 1 : 0);
     const keys = Object.keys(input);
     let input_counter = 0;
     keys.forEach((k) => {
@@ -147,10 +139,7 @@ class WitnessCalculator {
       const hMSB = parseInt(h.slice(0, 8), 16);
       const hLSB = parseInt(h.slice(8, 16), 16);
       const fArr = flatArray(input[k]);
-      let signalSize = (this.instance.exports as any).getInputSignalSize(
-        hMSB,
-        hLSB,
-      );
+      let signalSize = (this.instance.exports as any).getInputSignalSize(hMSB, hLSB);
       if (signalSize < 0) {
         throw new Error(`Signal ${k} not found\n`);
       }
@@ -163,10 +152,7 @@ class WitnessCalculator {
       for (let i = 0; i < fArr.length; i++) {
         const arrFr = toArray32(BigInt(fArr[i]) % this.prime, this.n32);
         for (let j = 0; j < this.n32; j++) {
-          (this.instance.exports as any).writeSharedRWMemory(
-            j,
-            arrFr[this.n32 - 1 - j],
-          );
+          (this.instance.exports as any).writeSharedRWMemory(j, arrFr[this.n32 - 1 - j]);
         }
         try {
           (this.instance.exports as any).setInputSignal(hMSB, hLSB, i);
@@ -181,7 +167,7 @@ class WitnessCalculator {
       throw new Error(
         `Not all inputs have been set. Only ${input_counter} out of ${(
           this.instance.exports as any
-        ).getInputSize()}`,
+        ).getInputSize()}`
       );
     }
   }
@@ -195,9 +181,7 @@ class WitnessCalculator {
       (this.instance.exports as any).getWitness(i);
       const arr = new Uint32Array(this.n32);
       for (let j = 0; j < this.n32; j++) {
-        arr[this.n32 - 1 - j] = (
-          this.instance.exports as any
-        ).readSharedRWMemory(j);
+        arr[this.n32 - 1 - j] = (this.instance.exports as any).readSharedRWMemory(j);
       }
       w.push(fromArray32(arr));
     }
