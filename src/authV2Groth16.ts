@@ -1,7 +1,7 @@
 import { Id } from '@iden3/js-iden3-core';
 import { ProvingMethod, ProvingMethodAlg, ZKProof } from './proving';
 import { AuthV2Circuit, Groth16, prove, verify } from './common';
-import { Hash, newHashFromString } from '@iden3/js-merkletree';
+import { Hash } from '@iden3/js-merkletree';
 import { getCurveFromName } from 'ffjavascript';
 
 // AuthV2PubSignals auth.circom public signals
@@ -64,7 +64,7 @@ export class ProvingMethodGroth16AuthV2 implements ProvingMethod {
     return {
       userID: Id.fromBigInt(BigInt(pubSignals[0])),
       challenge: BigInt(pubSignals[1]),
-      GISTRoot: newHashFromString(pubSignals[2])
+      GISTRoot: Hash.fromString(pubSignals[2])
     };
   }
 }
