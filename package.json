@@ -60,7 +60,7 @@
     "@iden3/js-crypto": "1.0.3",
     "@iden3/js-iden3-core": "1.1.0",
     "@iden3/js-merkletree": "1.1.2",
-    "rfc4648": "^1.5.3",
+    "rfc4648": "1.5.3",
     "ffjavascript": "0.2.62",
     "snarkjs": "0.7.2"
   },
