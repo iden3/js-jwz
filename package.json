@@ -30,8 +30,9 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
     "test:watch": "jest --watch",
     "lint": "eslint --fix --ext .js,.ts",
+    "lint:check": "eslint --ext .js,.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "deps:check": "npx madge --circular --extensions ts ./"
+    "format:check": "prettier \"src/**/*.ts\" \"test/**/*.ts\" --check"
   },
   "repository": {
     "type": "git",
