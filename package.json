@@ -1,6 +1,6 @@
 {
   "name": "@iden3/js-jwz",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "JS implementation of JWZ",
   "main": "./dist/node/cjs/index.js",
   "module": "./dist/node/esm/index.js",
