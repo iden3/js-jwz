@@ -20,7 +20,7 @@ describe('authV2Groth16', () => {
   });
 
   test('jwz new with payload', async () => {
-    const payload = 'myMessage';
+    const payload = 'mymessage';
     const token = new Token(proving.provingMethodGroth16AuthV2Instance, payload, mock);
 
     expect(token.alg).toEqual(Groth16);
@@ -28,7 +28,7 @@ describe('authV2Groth16', () => {
   });
 
   test('prove method', async () => {
-    const payload = 'myMessage';
+    const payload = 'mymessage';
 
     const token = new Token(proving.provingMethodGroth16AuthV2Instance, payload, mock);
 
