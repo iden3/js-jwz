@@ -7,12 +7,12 @@ export async function witnessBuilder(code, options?) {
   try {
     wasmModule = await WebAssembly.compile(code);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log(err);
+    // eslint-disable-next-line no-console
     console.log('\nTry to run circom --c in order to generate c++ code instead\n');
     throw new Error(err);
   }
-
-  let wc;
 
   let errStr = '';
   let msgStr = '';
@@ -46,6 +46,7 @@ export async function witnessBuilder(code, options?) {
         const msg = getMessage();
         // Any calls to `log()` will always end with a `\n`, so that's when we print and reset
         if (msg === '\n') {
+          // eslint-disable-next-line no-console
           console.log(msgStr);
           msgStr = '';
         } else {
@@ -73,7 +74,7 @@ export async function witnessBuilder(code, options?) {
   //            options.logFinishComponent
   //        );
 
-  wc = new WitnessCalculator(instance, sanityCheck);
+  const wc = new WitnessCalculator(instance, sanityCheck);
   return wc;
 
   function getMessage() {
@@ -139,7 +140,7 @@ class WitnessCalculator {
       const hMSB = parseInt(h.slice(0, 8), 16);
       const hLSB = parseInt(h.slice(8, 16), 16);
       const fArr = flatArray(input[k]);
-      let signalSize = (this.instance.exports as any).getInputSignalSize(hMSB, hLSB);
+      const signalSize = (this.instance.exports as any).getInputSignalSize(hMSB, hLSB);
       if (signalSize < 0) {
         throw new Error(`Signal ${k} not found\n`);
       }
@@ -299,7 +300,7 @@ function fromArray32(arr) {
 }
 
 function flatArray(a) {
-  let res = [];
+  const res = [];
   fillArray(res, a);
   return res;
 
@@ -322,8 +323,8 @@ function fnvHash(str) {
     hash *= BigInt(0x100000001b3);
     hash %= uint64_max;
   }
-  let shash = hash.toString(16);
-  let n = 16 - shash.length;
-  shash = '0'.repeat(n).concat(shash);
-  return shash;
+  let hashHex = hash.toString(16);
+  const n = 16 - hashHex.length;
+  hashHex = '0'.repeat(n).concat(hashHex);
+  return hashHex;
 }
