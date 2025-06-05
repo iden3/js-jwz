@@ -46,6 +46,18 @@ export async function prove(
   };
 }
 
+const Fp2 = bn254.fields.Fp2;
+const [G1PP, G2PP] = [bn254.G1.ProjectivePoint, bn254.G2.ProjectivePoint];
+
+const toG1 = ([x, y]: string[]) => G1PP.fromAffine({ x: BigInt(x), y: BigInt(y) });
+
+const toG2 = ([[x0, y0], [x1, y1]]: string[][]) => {
+  return G2PP.fromAffine({
+    x: Fp2.fromBigTuple([BigInt(x0), BigInt(y0)]),
+    y: Fp2.fromBigTuple([BigInt(x1), BigInt(y1)])
+  });
+};
+
 export async function verify<T extends { challenge: bigint }>(
   messageHash: Uint8Array,
   proof: ZKProof,
@@ -66,26 +78,14 @@ export function verifyGroth16Proof(zkp: ZKProof, vk: Groth16VerificationKey): bo
   if (!vk.IC) {
     throw new Error(`verification file doesn't exist for circuit`);
   }
+  const { proof, pub_signals } = zkp;
 
-  if (zkp.pub_signals.length + 1 !== vk.IC.length) {
+  if (pub_signals.length + 1 !== vk.IC.length) {
     throw new Error(
-      `Invalid number of public signals, expected ${vk.IC.length - 1} but got ${
-        zkp.pub_signals.length
-      }`
+      `Invalid number of public signals, expected ${vk.IC.length - 1} but got ${pub_signals.length}`
     );
   }
-  const [G1PP, G2PP] = [bn254.G1.ProjectivePoint, bn254.G2.ProjectivePoint];
-  const toG1 = ([x, y]: string[]) => G1PP.fromAffine({ x: BigInt(x), y: BigInt(y) });
 
-  const toG2 = ([[x0, y0], [x1, y1]]: string[][]) => {
-    const Fp2 = bn254.fields.Fp2;
-    return G2PP.fromAffine({
-      x: Fp2.fromBigTuple([BigInt(x0), BigInt(y0)]),
-      y: Fp2.fromBigTuple([BigInt(x1), BigInt(y1)])
-    });
-  };
-
-  const { proof, pub_signals } = zkp;
   let vkX = G1PP.ZERO;
 
   for (let i = 0; i < pub_signals.length; i++) {
