@@ -10,7 +10,7 @@ module.exports = {
         ...spellcheckerRule,
         cspell: {
           ...cspellConfig,
-          ignoreWords: ['mymessage']
+          ignoreWords: ['mymessage', 'alphabeta']
         }
       }
     ]
