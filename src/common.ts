@@ -90,7 +90,7 @@ export function verifyGroth16Proof(zkp: ZKProof, vk: Groth16VerificationKey): bo
 
   for (let i = 0; i < pub_signals.length; i++) {
     // check input inside field
-    if (BigInt(pub_signals[i]) >= bn254.G1.CURVE.n) {
+    if (BigInt(pub_signals[i]) < ZERO_BIGINT || BigInt(pub_signals[i]) >= bn254.G1.CURVE.n) {
       throw new Error(`Input value is not in the fields`);
     }
     // Skip multiplication by 0 since it contributes nothing to the sum
