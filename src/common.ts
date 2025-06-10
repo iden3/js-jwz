@@ -87,7 +87,7 @@ export function verifyGroth16Proof(zkp: ZKProof, vk: Groth16VerificationKey): bo
     );
   }
 
-  let vkX = G1PP.ZERO;
+  let cpub = G1PP.ZERO;
 
   for (let i = 0; i < pub_signals.length; i++) {
     // check input inside field
@@ -97,14 +97,14 @@ export function verifyGroth16Proof(zkp: ZKProof, vk: Groth16VerificationKey): bo
     // Skip multiplication by 0 since it contributes nothing to the sum
     if (BigInt(pub_signals[i]) !== ZERO_BIGINT) {
       const [x, y] = vk.IC[i + 1].map(BigInt);
-      vkX = vkX.add(G1PP.fromAffine({ x, y }).multiply(BigInt(pub_signals[i])));
+      cpub = cpub.add(G1PP.fromAffine({ x, y }).multiply(BigInt(pub_signals[i])));
     }
   }
-  vkX = vkX.add(toG1(vk.IC[0]));
+  cpub = cpub.add(toG1(vk.IC[0]));
 
   const newRes = bn254.pairingBatch([
     { g1: toG1(proof.pi_a).negate(), g2: toG2(proof.pi_b) },
-    { g1: vkX, g2: toG2(vk.vk_gamma_2) },
+    { g1: cpub, g2: toG2(vk.vk_gamma_2) },
     { g1: toG1(proof.pi_c), g2: toG2(vk.vk_delta_2) },
     { g1: toG1(vk.vk_alpha_1), g2: toG2(vk.vk_beta_2) }
   ]);
