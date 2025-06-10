@@ -11,6 +11,7 @@ import {
   ProofData
 } from './proving';
 import { provingMethodGroth16AuthV2Instance } from './authV2Groth16';
+import { Groth16VerificationKey, verifyGroth16Proof } from './common';
 
 registerProvingMethod(
   provingMethodGroth16AuthInstance.methodAlg,
@@ -38,5 +39,7 @@ export {
   hash,
   ZKProof,
   ProofData,
-  Header
+  Header,
+  verifyGroth16Proof,
+  Groth16VerificationKey
 };

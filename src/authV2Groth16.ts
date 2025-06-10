@@ -32,15 +32,7 @@ export class ProvingMethodGroth16AuthV2 implements ProvingMethod {
     proof: ZKProof,
     verificationKey: Uint8Array
   ): Promise<boolean> {
-    const verificationResult = await verify<AuthV2PubSignals>(
-      messageHash,
-      proof,
-      verificationKey,
-      this.unmarshall
-    );
-    await this.terminateCurve();
-
-    return verificationResult;
+    return verify<AuthV2PubSignals>(messageHash, proof, verificationKey, this.unmarshall);
   }
 
   async prove(inputs: Uint8Array, provingKey: Uint8Array, wasm: Uint8Array): Promise<ZKProof> {
