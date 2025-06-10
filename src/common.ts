@@ -101,31 +101,12 @@ export function verifyGroth16Proof(zkp: ZKProof, vk: Groth16VerificationKey): bo
   }
   vkX = vkX.add(toG1(vk.IC[0]));
 
-  const piAG1 = toG1(proof.pi_a);
+  const newRes = bn254.pairingBatch([
+    { g1: toG1(proof.pi_a).negate(), g2: toG2(proof.pi_b) },
+    { g1: vkX, g2: toG2(vk.vk_gamma_2) },
+    { g1: toG1(proof.pi_c), g2: toG2(vk.vk_delta_2) },
+    { g1: toG1(vk.vk_alpha_1), g2: toG2(vk.vk_beta_2) }
+  ]);
 
-  const alphaG1Neg = toG1(vk.vk_alpha_1).negate();
-
-  const negVkx = vkX.negate();
-
-  const piCNeg = toG1(proof.pi_c).negate();
-
-  const g1 = [piAG1, alphaG1Neg, negVkx, piCNeg];
-  const g2 = [proof.pi_b, vk.vk_beta_2, vk.vk_gamma_2, vk.vk_delta_2].map(toG2);
-
-  const { c0, c1 } = bn254.pairingBatch(g1.map((g, i) => ({ g1: g, g2: g2[i] })));
-
-  return (
-    c0.c0.c0 === ONE_BIGINT &&
-    c0.c0.c1 === ZERO_BIGINT &&
-    c0.c1.c0 === ZERO_BIGINT &&
-    c0.c1.c1 === ZERO_BIGINT &&
-    c0.c2.c0 === ZERO_BIGINT &&
-    c0.c2.c1 === ZERO_BIGINT &&
-    c1.c0.c0 === ZERO_BIGINT &&
-    c1.c0.c1 === ZERO_BIGINT &&
-    c1.c1.c0 === ZERO_BIGINT &&
-    c1.c1.c1 === ZERO_BIGINT &&
-    c1.c2.c0 === ZERO_BIGINT &&
-    c1.c2.c1 === ZERO_BIGINT
-  );
+  return bn254.fields.Fp12.eql(newRes, bn254.fields.Fp12.ONE);
 }
