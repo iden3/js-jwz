@@ -9,7 +9,9 @@ export const AuthCircuit = 'auth';
 export const AuthV2Circuit = 'authV2';
 const textDecoder = new TextDecoder();
 const ZERO_BIGINT = BigInt(0);
-const ONE_BIGINT = BigInt(1);
+
+const Fp2 = bn254.fields.Fp2;
+const Fp12 = bn254.fields.Fp12;
 
 export type Groth16VerificationKey = {
   protocol: 'groth16';
@@ -46,7 +48,6 @@ export async function prove(
   };
 }
 
-const Fp2 = bn254.fields.Fp2;
 const [G1PP, G2PP] = [bn254.G1.ProjectivePoint, bn254.G2.ProjectivePoint];
 
 const toG1 = ([x, y]: string[]) => G1PP.fromAffine({ x: BigInt(x), y: BigInt(y) });
@@ -91,10 +92,10 @@ export function verifyGroth16Proof(zkp: ZKProof, vk: Groth16VerificationKey): bo
   for (let i = 0; i < pub_signals.length; i++) {
     // check input inside field
     if (BigInt(pub_signals[i]) < ZERO_BIGINT || BigInt(pub_signals[i]) >= bn254.G1.CURVE.n) {
-      throw new Error(`Input value is not in the fields`);
+      throw new Error(`Input value is not in the field ${bn254.G1.CURVE.n}`);
     }
     // Skip multiplication by 0 since it contributes nothing to the sum
-    if (BigInt(pub_signals[i]) !== 0n) {
+    if (BigInt(pub_signals[i]) !== ZERO_BIGINT) {
       const [x, y] = vk.IC[i + 1].map(BigInt);
       vkX = vkX.add(G1PP.fromAffine({ x, y }).multiply(BigInt(pub_signals[i])));
     }
@@ -108,5 +109,5 @@ export function verifyGroth16Proof(zkp: ZKProof, vk: Groth16VerificationKey): bo
     { g1: toG1(vk.vk_alpha_1), g2: toG2(vk.vk_beta_2) }
   ]);
 
-  return bn254.fields.Fp12.eql(newRes, bn254.fields.Fp12.ONE);
+  return Fp12.eql(newRes, Fp12.ONE);
 }
