@@ -1,6 +1,6 @@
 {
   "name": "@iden3/js-jwz",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "JS implementation of JWZ",
   "source": "./src/index.ts",
   "exports": {
