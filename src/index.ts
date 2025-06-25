@@ -12,6 +12,7 @@ import {
 } from './proving';
 import { provingMethodGroth16AuthV2Instance } from './authV2Groth16';
 import { Groth16VerificationKey, verifyGroth16Proof } from './common';
+import { witnessBuilder } from './witness_calculator';
 
 registerProvingMethod(
   provingMethodGroth16AuthInstance.methodAlg,
@@ -41,5 +42,6 @@ export {
   ProofData,
   Header,
   verifyGroth16Proof,
-  Groth16VerificationKey
+  Groth16VerificationKey,
+  witnessBuilder
 };
