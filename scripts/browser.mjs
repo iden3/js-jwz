@@ -1,9 +1,20 @@
 import commonJS from '@rollup/plugin-commonjs';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
+import json from '@rollup/plugin-json';
 import tsConfig from '../tsconfig.json' with { type: 'json' };
 import packageJson from '../package.json' with { type: 'json' };
-import terser from '@rollup/plugin-terser';
+
+
+const compilerOptions = {
+  ...tsConfig.compilerOptions,
+  outDir: undefined,
+  declarationDir: undefined,
+  declaration: undefined,
+  sourceMap: undefined,
+  declarationMap: undefined,
+};
+
 const external = [
   ...Object.keys(packageJson.peerDependencies).filter((key) => key.startsWith('@iden3/')),
   'snarkjs',
@@ -21,15 +32,12 @@ const config = {
   ],
   plugins: [
     typescript({
-      compilerOptions: {
-        ...tsConfig.compilerOptions
-      }
+      compilerOptions
     }),
     commonJS(),
     nodeResolve({
       browser: true
     }),
-    terser()
   ],
   treeshake: {
     preset: 'smallest'
@@ -41,16 +49,14 @@ export default [
   {
     ...config,
     plugins: [
+      json(),
       typescript({
-        compilerOptions: {
-          ...tsConfig.compilerOptions
-        }
+        compilerOptions
       }),
       nodeResolve({
         browser: true
       }),
       commonJS(),
-      terser()
     ],
     external: [],
     output: [

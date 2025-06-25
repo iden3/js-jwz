@@ -1,16 +1,12 @@
 /* eslint-disable require-await */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export async function witnessBuilder(code, options?) {
+export async function witnessBuilder(code: BufferSource, options?: any) {
   options = options || {};
 
   let wasmModule;
   try {
     wasmModule = await WebAssembly.compile(code);
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.log(err);
-    // eslint-disable-next-line no-console
-    console.log('\nTry to run circom --c in order to generate c++ code instead\n');
+  } catch (err: any) {
     throw new Error(err);
   }
 
@@ -19,7 +15,7 @@ export async function witnessBuilder(code, options?) {
 
   const instance = await WebAssembly.instantiate(wasmModule, {
     runtime: {
-      exceptionHandler: function (code) {
+      exceptionHandler: function (code: number) {
         let err;
         if (code == 1) {
           err = 'Signal not found.\n';
@@ -40,14 +36,11 @@ export async function witnessBuilder(code, options?) {
       },
       printErrorMessage: function () {
         errStr += getMessage() + '\n';
-        // console.error(getMessage());
       },
       writeBufferMessage: function () {
         const msg = getMessage();
         // Any calls to `log()` will always end with a `\n`, so that's when we print and reset
         if (msg === '\n') {
-          // eslint-disable-next-line no-console
-          console.log(msgStr);
           msgStr = '';
         } else {
           // If we've buffered other content, put a space in between the items
@@ -65,14 +58,6 @@ export async function witnessBuilder(code, options?) {
   });
 
   const sanityCheck = options;
-  //        options &&
-  //        (
-  //            options.sanityCheck ||
-  //            options.logGetSignal ||
-  //            options.logSetSignal ||
-  //            options.logStartComponent ||
-  //            options.logFinishComponent
-  //        );
 
   const wc = new WitnessCalculator(instance, sanityCheck);
   return wc;
@@ -109,7 +94,7 @@ class WitnessCalculator {
   prime: any;
   witnessSize: any;
   sanityCheck: any;
-  constructor(private instance, sanityCheck) {
+  constructor(private instance: any, sanityCheck: any) {
     this.instance = instance;
     this.version = (this.instance.exports as any).getVersion();
     this.n32 = (this.instance.exports as any).getFieldNumLen32();
@@ -130,7 +115,7 @@ class WitnessCalculator {
     return (this.instance.exports as any).getVersion();
   }
 
-  async _doCalculateWitness(input, sanityCheck) {
+  async _doCalculateWitness(input: any, sanityCheck: any) {
     //input is assumed to be a map from signals to arrays of bigints
     (this.instance.exports as any).init(this.sanityCheck || sanityCheck ? 1 : 0);
     const keys = Object.keys(input);
@@ -158,7 +143,7 @@ class WitnessCalculator {
         try {
           (this.instance.exports as any).setInputSignal(hMSB, hLSB, i);
           input_counter++;
-        } catch (err) {
+        } catch (err: any) {
           // console.log(`After adding signal ${i} of ${k}`)
           throw new Error(err);
         }
@@ -173,8 +158,8 @@ class WitnessCalculator {
     }
   }
 
-  async calculateWitness(input, sanityCheck) {
-    const w: bigint[] = [];
+  async calculateWitness(input: any, sanityCheck: any) {
+    const w = [];
 
     await this._doCalculateWitness(input, sanityCheck);
 
@@ -190,7 +175,7 @@ class WitnessCalculator {
     return w;
   }
 
-  async calculateBinWitness(input, sanityCheck) {
+  async calculateBinWitness(input: any, sanityCheck: any) {
     const buff32 = new Uint32Array(this.witnessSize * this.n32);
     const buff = new Uint8Array(buff32.buffer);
     await this._doCalculateWitness(input, sanityCheck);
@@ -206,7 +191,7 @@ class WitnessCalculator {
     return buff;
   }
 
-  async calculateWTNSBin(input, sanityCheck) {
+  async calculateWTNSBin(input: any, sanityCheck: any) {
     const buff32 = new Uint32Array(this.witnessSize * this.n32 + this.n32 + 11);
     const buff = new Uint8Array(buff32.buffer);
     await this._doCalculateWitness(input, sanityCheck);
@@ -272,8 +257,8 @@ class WitnessCalculator {
   }
 }
 
-function toArray32(rem, size) {
-  const res: number[] = []; //new Uint32Array(size); //has no unshift
+function toArray32(rem: bigint, size: number) {
+  const res = []; //new Uint32Array(size); //has no unshift
   const radix = BigInt(0x100000000);
   while (rem) {
     res.unshift(Number(rem % radix));
@@ -289,7 +274,7 @@ function toArray32(rem, size) {
   return res;
 }
 
-function fromArray32(arr) {
+function fromArray32(arr: Uint32Array) {
   //returns a BigInt
   let res = BigInt(0);
   const radix = BigInt(0x100000000);
@@ -299,12 +284,12 @@ function fromArray32(arr) {
   return res;
 }
 
-function flatArray(a) {
-  const res = [];
+function flatArray(a: any[]) {
+  const res: any[] = [];
   fillArray(res, a);
   return res;
 
-  function fillArray(res, a) {
+  function fillArray(res: any[], a: any[]) {
     if (Array.isArray(a)) {
       for (let i = 0; i < a.length; i++) {
         fillArray(res, a[i]);
@@ -315,7 +300,7 @@ function flatArray(a) {
   }
 }
 
-function fnvHash(str) {
+function fnvHash(str: any) {
   const uint64_max = BigInt(2) ** BigInt(64);
   let hash = BigInt('0xCBF29CE484222325');
   for (let i = 0; i < str.length; i++) {
