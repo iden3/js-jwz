@@ -14,7 +14,7 @@ export interface AuthV3PubSignals {
 export const AuthV3Groth16Alg = new ProvingMethodAlg(Groth16, AuthV3Circuit);
 export const AuthV3_8_32Groth16Alg = new ProvingMethodAlg(Groth16, AuthV3_8_32_Circuit);
 
-// ProvingMethodGroth16AuthV3 instance for Groth16 proving method with an authV2 circuit
+// ProvingMethodGroth16AuthV3 instance for Groth16 proving method with an authV3 circuit
 export class ProvingMethodGroth16AuthV3 implements ProvingMethod {
   private static readonly curveName = 'bn128';
 
