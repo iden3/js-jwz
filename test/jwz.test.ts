@@ -1,4 +1,4 @@
-import { Groth16, AuthV2Circuit, AuthV3Circuit, AuthV3_8_32_Circuit } from './../src/common';
+import { Groth16, AuthV2Circuit, AuthV3Circuit, AuthV3_8_32Circuit } from './../src/common';
 
 import { ProofInputsPreparerHandlerFunc, proving } from '../src/index';
 import { Token } from './../src/jwz';
@@ -144,16 +144,16 @@ describe('authV3_8_32-Groth16', () => {
 
   test('jwz new with payload', async () => {
     const payload = 'mymessage';
-    const token = new Token(proving.provingMethodGroth16AuthV3_8_32_Instance, payload, mock);
+    const token = new Token(proving.provingMethodGroth16AuthV3_8_32Instance, payload, mock);
 
     expect(token.alg).toEqual(Groth16);
-    expect(token.circuitId).toEqual(AuthV3_8_32_Circuit);
+    expect(token.circuitId).toEqual(AuthV3_8_32Circuit);
   });
 
   test('prove method', async () => {
     const payload = 'mymessage';
 
-    const token = new Token(proving.provingMethodGroth16AuthV3_8_32_Instance, payload, mock);
+    const token = new Token(proving.provingMethodGroth16AuthV3_8_32Instance, payload, mock);
 
     expect(token.alg).toEqual(Groth16);
     const provingKey = fs.readFileSync('./test/data/authV3-8-32/circuit_final.zkey');
@@ -185,7 +185,7 @@ describe('authV3_8_32-Groth16', () => {
 
     expect(zkProof.pub_signals).toEqual(token.zkProof.pub_signals);
     expect(zkProof.proof).toEqual(token.zkProof.proof);
-    expect(AuthV3_8_32_Circuit).toEqual(token.circuitId);
+    expect(AuthV3_8_32Circuit).toEqual(token.circuitId);
     expect(Groth16).toEqual(token.alg);
   });
 });
