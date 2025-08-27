@@ -7,6 +7,8 @@ import { bn254 } from '@noble/curves/bn254';
 export const Groth16 = 'groth16';
 export const AuthCircuit = 'auth';
 export const AuthV2Circuit = 'authV2';
+export const AuthV3Circuit = 'authV3';
+export const AuthV3_8_32Circuit = 'authV3-8-32';
 const textDecoder = new TextDecoder();
 const ZERO_BIGINT = BigInt(0);
 
