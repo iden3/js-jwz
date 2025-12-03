@@ -13,10 +13,7 @@ import {
 import { provingMethodGroth16AuthV2Instance } from './authV2Groth16';
 import { Groth16VerificationKey, verifyGroth16Proof } from './common';
 import { witnessBuilder } from './witness_calculator';
-import {
-  provingMethodGroth16AuthV3Instance,
-  provingMethodGroth16AuthV3_8_32Instance
-} from './authV3Groth16';
+import { provingMethodGroth16AuthV3Instance } from './authV3Groth16';
 
 registerProvingMethod(
   provingMethodGroth16AuthInstance.methodAlg,
@@ -33,18 +30,12 @@ registerProvingMethod(
   () => provingMethodGroth16AuthV3Instance
 );
 
-registerProvingMethod(
-  provingMethodGroth16AuthV3_8_32Instance.methodAlg,
-  () => provingMethodGroth16AuthV3_8_32Instance
-);
-
 const proving = {
   registerProvingMethod,
   getProvingMethod,
   provingMethodGroth16AuthInstance,
   provingMethodGroth16AuthV2Instance,
-  provingMethodGroth16AuthV3Instance,
-  provingMethodGroth16AuthV3_8_32Instance
+  provingMethodGroth16AuthV3Instance
 };
 
 export {

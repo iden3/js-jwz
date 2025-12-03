@@ -8,7 +8,6 @@ export const Groth16 = 'groth16';
 export const AuthCircuit = 'auth';
 export const AuthV2Circuit = 'authV2';
 export const AuthV3Circuit = 'authV3';
-export const AuthV3_8_32Circuit = 'authV3-8-32';
 const textDecoder = new TextDecoder();
 const ZERO_BIGINT = BigInt(0);
 
@@ -35,7 +34,7 @@ export async function prove(
   provingKey: Uint8Array,
   wasm: Uint8Array
 ): Promise<ZKProof> {
-  const witnessCalculator = await witnessBuilder(wasm);
+  const witnessCalculator = await witnessBuilder(wasm as unknown as ArrayBuffer);
 
   const jsonString = new TextDecoder().decode(inputs);
 
@@ -50,7 +49,7 @@ export async function prove(
   };
 }
 
-const [G1PP, G2PP] = [bn254.G1.ProjectivePoint, bn254.G2.ProjectivePoint];
+const [G1PP, G2PP] = [bn254.curves.G1, bn254.curves.G2];
 
 const toG1 = ([x, y]: string[]) => G1PP.fromAffine({ x: BigInt(x), y: BigInt(y) });
 

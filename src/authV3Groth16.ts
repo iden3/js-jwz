@@ -1,6 +1,6 @@
 import { Id } from '@iden3/js-iden3-core';
 import { ProvingMethod, ProvingMethodAlg, ZKProof } from './proving';
-import { AuthV3Circuit, AuthV3_8_32Circuit, Groth16, prove, verify } from './common';
+import { AuthV3Circuit, Groth16, prove, verify } from './common';
 import { Hash } from '@iden3/js-merkletree';
 import { getCurveFromName } from 'ffjavascript';
 
@@ -12,7 +12,6 @@ export interface AuthV3PubSignals {
 }
 
 export const AuthV3Groth16Alg = new ProvingMethodAlg(Groth16, AuthV3Circuit);
-export const AuthV3_8_32Groth16Alg = new ProvingMethodAlg(Groth16, AuthV3_8_32Circuit);
 
 // ProvingMethodGroth16AuthV3 instance for Groth16 proving method with an authV3 circuit
 export class ProvingMethodGroth16AuthV3 implements ProvingMethod {
@@ -65,6 +64,3 @@ export class ProvingMethodGroth16AuthV3 implements ProvingMethod {
 export const provingMethodGroth16AuthV3Instance: ProvingMethod = new ProvingMethodGroth16AuthV3(
   new ProvingMethodAlg(Groth16, AuthV3Circuit)
 );
-
-export const provingMethodGroth16AuthV3_8_32Instance: ProvingMethod =
-  new ProvingMethodGroth16AuthV3(new ProvingMethodAlg(Groth16, AuthV3_8_32Circuit));
