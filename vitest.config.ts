@@ -5,3 +5,4 @@ export default defineConfig({
     testTimeout: 10000, // 10 seconds
   },
 });
+

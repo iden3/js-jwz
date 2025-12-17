@@ -31,6 +31,8 @@ export interface ProvingMethod {
   readonly alg: string;
   // Returns the alg identifier for this method (example: 'AUTH-GROTH-16')
   readonly circuitId: string;
+
+  get supportedCircuits(): string[];
 }
 
 // RegisterProvingMethod registers the "alg" name and a factory function for proving method.

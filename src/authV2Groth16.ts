@@ -27,6 +27,10 @@ export class ProvingMethodGroth16AuthV2 implements ProvingMethod {
     return this.methodAlg.circuitId;
   }
 
+  get supportedCircuits(): string[] {
+    return [...new Set([this.methodAlg.circuitId, 'authV2'])];
+  }
+
   async verify(
     messageHash: Uint8Array,
     proof: ZKProof,

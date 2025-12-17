@@ -1,6 +1,5 @@
 import { hash } from './hash';
 import { Token, Header } from './jwz';
-import { provingMethodGroth16AuthInstance } from './authGroth16';
 import {
   getProvingMethod,
   ProofInputsPreparerHandlerFunc,
@@ -17,11 +16,6 @@ import { witnessBuilder } from './witness_calculator';
 import { provingMethodGroth16AuthV3Instance } from './authV3Groth16';
 
 registerProvingMethod(
-  provingMethodGroth16AuthInstance.methodAlg,
-  () => provingMethodGroth16AuthInstance
-);
-
-registerProvingMethod(
   provingMethodGroth16AuthV2Instance.methodAlg,
   () => provingMethodGroth16AuthV2Instance
 );
@@ -34,7 +28,6 @@ registerProvingMethod(
 const proving = {
   registerProvingMethod,
   getProvingMethod,
-  provingMethodGroth16AuthInstance,
   provingMethodGroth16AuthV2Instance,
   provingMethodGroth16AuthV3Instance
 };

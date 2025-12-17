@@ -271,6 +271,15 @@ export class Token {
   }): Promise<boolean> {
     const msgHash = await this.getMessageHash();
     const targetCircuitId = this.zkProof.proof.protocol.split(';')[1] ?? this.circuitId;
+
+    if (!this.method.supportedCircuits.includes(targetCircuitId)) {
+      throw new Error(
+        `iden3/jwz: ${targetCircuitId} is not supported. Valid circuitIds: ${this.method.supportedCircuits.join(
+          ', '
+        )}`
+      );
+    }
+
     const verificationKeyMap = dynamicVerificationParams.verificationKeysMap.find(
       (p) => p.circuitId === targetCircuitId
     );

@@ -3,7 +3,7 @@ import { Groth16, AuthV2Circuit, AuthV3Circuit } from './../src/common';
 import { ProofInputsPreparerHandlerFunc, proving } from '../src/index';
 import { Token } from './../src/jwz';
 import { base64url as base64 } from 'rfc4648';
-
+import { test, describe, beforeAll, expect } from 'vitest';
 import * as fs from 'fs';
 
 describe('authV2Groth16', () => {

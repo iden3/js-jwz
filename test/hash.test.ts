@@ -1,5 +1,7 @@
 import { poseidon } from '@iden3/js-crypto';
 import { hash } from '../src/hash';
+import { test, expect } from 'vitest';
+
 
 test('hash', () => {
   const utf8Encode = new TextEncoder();
