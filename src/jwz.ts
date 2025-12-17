@@ -5,7 +5,7 @@ import {
   ProvingMethodAlg,
   ProofInputsPreparerHandlerFunc,
   getProvingMethod,
-  prepare
+  DynamicProofInputsPreparerHandlerFunc
 } from './proving';
 
 import { base64url as base64 } from 'rfc4648';
@@ -17,6 +17,9 @@ export enum Header {
   CircuitId = 'circuitId',
   Critical = 'crit'
 }
+
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
 
 export interface IRawJSONWebZeroknowledge {
   payload: Uint8Array;
@@ -40,9 +43,7 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
       throw new Error('iden3/js-jwz: missing payload in JWZ message');
     }
 
-    const headers: { [key: string]: unknown } = JSON.parse(
-      new TextDecoder().decode(this.protectedHeaders)
-    );
+    const headers: { [key: string]: unknown } = JSON.parse(decoder.decode(this.protectedHeaders));
     const criticalHeaders = headers[Header.Critical] as string[];
     criticalHeaders.forEach((key: string) => {
       if (!headers[key]) {
@@ -54,8 +55,8 @@ export class RawJSONWebZeroknowledge implements IRawJSONWebZeroknowledge {
     const circuitId = headers[Header.CircuitId] as string;
 
     const method = await getProvingMethod(new ProvingMethodAlg(alg, circuitId));
-    const zkp = JSON.parse(new TextDecoder().decode(this.zkp));
-    const token = new Token(method, new TextDecoder().decode(this.payload));
+    const zkp = JSON.parse(decoder.decode(this.zkp));
+    const token = new Token(method, decoder.decode(this.payload));
     token.alg = alg;
     token.circuitId = circuitId;
     token.zkProof = zkp;
@@ -84,7 +85,7 @@ export class Token {
     this.raw = {} as IRawJSONWebZeroknowledge;
     this.raw.header = this.getDefaultHeaders();
 
-    this.raw.payload = new TextEncoder().encode(payload);
+    this.raw.payload = encoder.encode(payload);
   }
 
   public setHeader(key: string, value: unknown): void {
@@ -92,7 +93,7 @@ export class Token {
   }
 
   public getPayload(): string {
-    return new TextDecoder().decode(this.raw.payload);
+    return decoder.decode(this.raw.payload);
   }
 
   private getDefaultHeaders(): { [key: string]: string | string[] } {
@@ -145,21 +146,70 @@ export class Token {
     // all headers must be protected
     const headers = this.serializeHeaders();
 
-    this.raw.protectedHeaders = new TextEncoder().encode(headers);
+    this.raw.protectedHeaders = encoder.encode(headers);
 
     const msgHash: Uint8Array = await this.getMessageHash();
 
     if (!this.inputsPreparer) {
       throw new Error('iden3/jwz: prepare func must be defined');
     }
-    const inputs: Uint8Array = await prepare(this.inputsPreparer, msgHash, this.circuitId);
+    const inputs: Uint8Array = await this.inputsPreparer(msgHash, this.circuitId);
 
     const proof: ZKProof = await this.method.prove(inputs, provingKey, wasm);
 
     const marshaledProof = JSON.stringify(proof);
 
     this.zkProof = proof;
-    this.raw.zkp = new TextEncoder().encode(marshaledProof);
+    this.raw.zkp = encoder.encode(marshaledProof);
+
+    return this.compactSerialize();
+  }
+
+  // Prove creates and returns a complete, proved JWZ.
+  // The token is proven using the Proving Method specified in the token.
+  async dynamicProve(dynamicProvingParams: {
+    provingParams: {
+      circuitId: string;
+      provingKey: Uint8Array;
+      wasm: Uint8Array;
+    }[];
+    inputsPreparerFn: DynamicProofInputsPreparerHandlerFunc | ProofInputsPreparerHandlerFunc;
+  }): Promise<string> {
+    // all headers must be protected
+    const headers = this.serializeHeaders();
+
+    this.raw.protectedHeaders = encoder.encode(headers);
+
+    const msgHash: Uint8Array = await this.getMessageHash();
+
+    if (!dynamicProvingParams.inputsPreparerFn) {
+      throw new Error('iden3/jwz: prepare func must be defined');
+    }
+    const result = await dynamicProvingParams.inputsPreparerFn(msgHash, this.circuitId);
+
+    const targetCircuitId: string =
+      'targetCircuitId' in result ? result.targetCircuitId : this.circuitId;
+    const provingParams = dynamicProvingParams.provingParams.find(
+      (p) => p.circuitId === targetCircuitId
+    );
+
+    const inputs: Uint8Array = 'inputs' in result ? result.inputs : result;
+    if (!provingParams) {
+      throw new Error('iden3/jwz: proving params not found for circuit id');
+    }
+
+    const proof: ZKProof = await this.method.prove(
+      inputs,
+      provingParams.provingKey,
+      provingParams.wasm
+    );
+
+    proof.proof.protocol = `${proof.proof.protocol};${targetCircuitId}`;
+
+    const marshaledProof = JSON.stringify(proof);
+
+    this.zkProof = proof;
+    this.raw.zkp = encoder.encode(marshaledProof);
 
     return this.compactSerialize();
   }
@@ -188,7 +238,7 @@ export class Token {
   async getMessageHash(): Promise<Uint8Array> {
     const serializedHeadersJSON = this.serializeHeaders();
 
-    const serializedHeaders = new TextEncoder().encode(serializedHeadersJSON);
+    const serializedHeaders = encoder.encode(serializedHeadersJSON);
     const protectedHeaders = base64.stringify(serializedHeaders, {
       pad: false
     });
@@ -196,9 +246,9 @@ export class Token {
     const payload = base64.stringify(this.raw.payload, { pad: false });
 
     // JWZ ZkProof input value is ASCII(BASE64URL(UTF8(JWS Protected Header)) || '.' || BASE64URL(JWS Payload)).
-    const messageToProof = new TextEncoder().encode(`${protectedHeaders}.${payload}`);
+    const messageToProof = encoder.encode(`${protectedHeaders}.${payload}`);
 
-    const hashInt: bigint = await hash(messageToProof);
+    const hashInt: bigint = hash(messageToProof);
 
     return toBigEndian(hashInt, 32);
   }
@@ -211,6 +261,26 @@ export class Token {
     // 2. verify that zkp is valid
 
     return this.method.verify(msgHash, this.zkProof, verificationKey);
+  }
+
+  async dynamicVerify(dynamicVerificationParams: {
+    verificationKeysMap: {
+      circuitId: string;
+      verificationKey: Uint8Array;
+    }[];
+  }): Promise<boolean> {
+    const msgHash = await this.getMessageHash();
+    const targetCircuitId = this.zkProof.proof.protocol.split(';')[1] ?? this.circuitId;
+    const verificationKeyMap = dynamicVerificationParams.verificationKeysMap.find(
+      (p) => p.circuitId === targetCircuitId
+    );
+    if (!verificationKeyMap) {
+      throw new Error(
+        `iden3/jwz: verification key map not found for circuit id ${targetCircuitId}`
+      );
+    }
+
+    return this.method.verify(msgHash, this.zkProof, verificationKeyMap.verificationKey);
   }
 
   serializeHeaders() {

@@ -68,11 +68,8 @@ export type ProofInputsPreparerHandlerFunc = (
   circuitId: string
 ) => Promise<Uint8Array>;
 
-// Prepare function is responsible to call provided handler for inputs preparation
-export function prepare(
-  f: ProofInputsPreparerHandlerFunc,
+// DynamicProofInputsPreparerHandlerFunc prepares inputs using hash message and circuit id
+export type DynamicProofInputsPreparerHandlerFunc = (
   hash: Uint8Array,
   circuitId: string
-): Promise<Uint8Array> {
-  return f(hash, circuitId);
-}
+) => Promise<{ inputs: Uint8Array; targetCircuitId: string }>;

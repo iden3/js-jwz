@@ -8,7 +8,8 @@ import {
   ProvingMethodAlg,
   registerProvingMethod,
   ZKProof,
-  ProofData
+  ProofData,
+  DynamicProofInputsPreparerHandlerFunc
 } from './proving';
 import { provingMethodGroth16AuthV2Instance } from './authV2Groth16';
 import { Groth16VerificationKey, verifyGroth16Proof } from './common';
@@ -41,6 +42,7 @@ const proving = {
 export {
   proving,
   ProofInputsPreparerHandlerFunc,
+  DynamicProofInputsPreparerHandlerFunc,
   ProvingMethod,
   ProvingMethodAlg,
   Token,

@@ -1,4 +1,4 @@
-import { Groth16, AuthV2Circuit, AuthV3Circuit, AuthV3_8_32Circuit } from './../src/common';
+import { Groth16, AuthV2Circuit, AuthV3Circuit } from './../src/common';
 
 import { ProofInputsPreparerHandlerFunc, proving } from '../src/index';
 import { Token } from './../src/jwz';

@@ -67,7 +67,8 @@ export async function verify<T extends { challenge: bigint }>(
   unmarshall: (pubSignals: string[]) => T
 ): Promise<boolean> {
   const outputs: T = unmarshall(proof.pub_signals);
-  if (outputs.challenge !== fromBigEndian(messageHash)) {
+  const expectedChallenge = fromBigEndian(messageHash);
+  if (outputs.challenge !== expectedChallenge) {
     throw new Error('challenge is not equal to message hash');
   }
 
