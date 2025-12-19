@@ -17,7 +17,10 @@ export const AuthV3Groth16Alg = new ProvingMethodAlg(Groth16, AuthV3Circuit);
 export class ProvingMethodGroth16AuthV3 implements ProvingMethod {
   private static readonly curveName = 'bn128';
 
-  constructor(public readonly methodAlg: ProvingMethodAlg) {}
+  constructor(
+    public readonly methodAlg: ProvingMethodAlg,
+    private readonly opts?: { circuitSubVersions: string[] }
+  ) {}
 
   get alg(): string {
     return this.methodAlg.alg;
@@ -28,7 +31,7 @@ export class ProvingMethodGroth16AuthV3 implements ProvingMethod {
   }
 
   get supportedCircuits(): string[] {
-    return [...new Set([this.methodAlg.circuitId, 'authV3', 'authV3-8-32'])];
+    return [...new Set([this.methodAlg.circuitId, ...(this.opts?.circuitSubVersions || [])])];
   }
 
   async verify(
@@ -66,5 +69,6 @@ export class ProvingMethodGroth16AuthV3 implements ProvingMethod {
 }
 
 export const provingMethodGroth16AuthV3Instance: ProvingMethod = new ProvingMethodGroth16AuthV3(
-  new ProvingMethodAlg(Groth16, AuthV3Circuit)
+  new ProvingMethodAlg(Groth16, AuthV3Circuit),
+  { circuitSubVersions: ['authV3-8-32'] }
 );

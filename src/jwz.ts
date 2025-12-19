@@ -198,6 +198,14 @@ export class Token {
       throw new Error('iden3/jwz: proving params not found for circuit id');
     }
 
+    if (!this.method.supportedCircuits.includes(targetCircuitId)) {
+      throw new Error(
+        `iden3/jwz: ${targetCircuitId} is not supported. Valid circuitIds: ${this.method.supportedCircuits.join(
+          ', '
+        )}`
+      );
+    }
+
     const proof: ZKProof = await this.method.prove(
       inputs,
       provingParams.provingKey,
