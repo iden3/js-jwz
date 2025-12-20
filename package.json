@@ -1,6 +1,6 @@
 {
   "name": "@iden3/js-jwz",
-  "version": "1.12.2",
+  "version": "1.13.0",
   "description": "JS implementation of JWZ",
   "source": "./src/index.ts",
   "exports": {
@@ -81,6 +81,6 @@
     "ts-node": "^10.9.2",
     "esbuild": "^0.25.5",
     "typescript": "^5.8.3",
-    "vitest": "^3.2.4"
+    "vitest": "4.0.16"
   }
 }

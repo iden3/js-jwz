@@ -1,6 +1,6 @@
 /* eslint-disable require-await */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export async function witnessBuilder(code: BufferSource, options?: any) {
+export async function witnessBuilder(code: ArrayBuffer, options?: any) {
   options = options || {};
 
   let wasmModule;
