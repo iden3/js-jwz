@@ -139,7 +139,7 @@ export default defineConfig(({ mode, command }) => {
                         include: ["test/hash.test.ts", "test/verify.test.ts"],
                         browser: {
                             enabled: true,
-                            headless: false,
+                            headless: true,
                             provider: playwright(),
                             instances: [{ browser: "chromium" }],
                         },
