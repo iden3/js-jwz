@@ -157,7 +157,7 @@ export default defineConfig(({ mode, command }) => {
                         include: ["test/iife.test.ts"],
                         browser: {
                             enabled: true,
-                            headless: false,
+                            headless: true,
                             provider: playwright(),
                             instances: [{ browser: "chromium" }],
                         },
