@@ -2,7 +2,7 @@ import { ZKProof } from './proving';
 import { witnessBuilder } from './witness_calculator';
 import { groth16 } from 'snarkjs';
 import { fromBigEndian } from '@iden3/js-iden3-core';
-import { bn254 } from '@noble/curves/bn254';
+import { bn254 } from '@noble/curves/bn254.js';
 
 export const Groth16 = 'groth16';
 export const AuthCircuit = 'auth';
@@ -50,7 +50,7 @@ export async function prove(
   };
 }
 
-const [G1PP, G2PP] = [bn254.G1.ProjectivePoint, bn254.G2.ProjectivePoint];
+const [G1PP, G2PP] = [bn254.G1.Point, bn254.G2.Point];
 
 const toG1 = ([x, y]: string[]) => G1PP.fromAffine({ x: BigInt(x), y: BigInt(y) });
 
@@ -94,8 +94,8 @@ export function verifyGroth16Proof(zkp: ZKProof, vk: Groth16VerificationKey): bo
 
   for (let i = 0; i < pub_signals.length; i++) {
     // check input inside field
-    if (BigInt(pub_signals[i]) < ZERO_BIGINT || BigInt(pub_signals[i]) >= bn254.G1.CURVE.n) {
-      throw new Error(`Input value is not in the field ${bn254.G1.CURVE.n}`);
+    if (BigInt(pub_signals[i]) < ZERO_BIGINT || BigInt(pub_signals[i]) >= bn254.fields.Fr.ORDER) {
+      throw new Error(`Input value is not in the field ${bn254.fields.Fr.ORDER}`);
     }
     // Skip multiplication by 0 since it contributes nothing to the sum
     if (BigInt(pub_signals[i]) !== ZERO_BIGINT) {

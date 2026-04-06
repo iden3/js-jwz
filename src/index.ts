@@ -1,17 +1,16 @@
 import { hash } from './hash';
 import { Token, Header } from './jwz';
-import {
-  getProvingMethod,
+import { getProvingMethod, ProvingMethodAlg, registerProvingMethod } from './proving';
+import type {
   ProofInputsPreparerHandlerFunc,
   ProvingMethod,
-  ProvingMethodAlg,
-  registerProvingMethod,
   ZKProof,
   ProofData,
   DynamicProofInputsPreparerHandlerFunc
 } from './proving';
 import { provingMethodGroth16AuthV2Instance } from './authV2Groth16';
-import { Groth16VerificationKey, verifyGroth16Proof } from './common';
+import { verifyGroth16Proof } from './common';
+import type { Groth16VerificationKey } from './common';
 import { witnessBuilder } from './witness_calculator';
 import {
   provingMethodGroth16AuthV3Instance,

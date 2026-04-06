@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "target": "ES2022",
     "module": "ESNext",
     "lib": ["ES2022", "DOM"],
@@ -13,8 +13,6 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "declaration": true,
-    "declarationDir": "dist/types",
-    "outDir": "dist/node/esm",
     "typeRoots": ["node_modules/@types", "types"]
   },
   "include": ["src", "types"]

@@ -1,4 +1,4 @@
-import { poseidon } from '@iden3/js-crypto';
+import { Hex, poseidon } from '@iden3/js-crypto';
 import { hash } from '../src/hash';
 import { test, expect } from 'vitest';
 
@@ -29,7 +29,7 @@ test('hash long message', () => {
 test('poseidon', () => {
   const utf8Encode = new TextEncoder();
   const arr = utf8Encode.encode('message');
-  const hex = Buffer.from(arr).toString('hex');
+  const hex = Hex.encodeString(arr);
   const bigIntToHash = BigInt('0x' + hex);
 
   const bi = poseidon.hash([bigIntToHash]);
