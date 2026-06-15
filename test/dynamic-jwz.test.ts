@@ -1,10 +1,8 @@
+import * as fs from 'node:fs/promises';
+import path from 'node:path';
+import { describe, expect, it } from 'vitest';
+import { type DynamicProofInputsPreparerHandlerFunc, proving, Token } from '../src';
 import { AuthV3Circuit } from './../src/common';
-
-import { DynamicProofInputsPreparerHandlerFunc, proving, Token } from '../src';
-
-import * as fs from 'fs/promises';
-import path from 'path';
-import { describe, it, expect } from 'vitest';
 
 describe('dynamicProve and dynamicVerify', () => {
   // Mock inputs for authV3 circuit
@@ -20,7 +18,7 @@ describe('dynamicProve and dynamicVerify', () => {
     }> => {
       return Promise.resolve({
         inputs: new TextEncoder().encode(authV3_8_32_Input),
-        targetCircuitId: AuthV3Circuit + '-8-32'
+        targetCircuitId: `${AuthV3Circuit}-8-32`
       });
     };
 
@@ -40,13 +38,13 @@ describe('dynamicProve and dynamicVerify', () => {
       return { provingKey, wasm, verificationKey };
     };
 
-    const authV3_8_32_keys = await loadKeys(AuthV3Circuit + '-8-32');
+    const authV3_8_32_keys = await loadKeys(`${AuthV3Circuit}-8-32`);
     const authV3_keys = await loadKeys(AuthV3Circuit);
 
-    const tokenStr = await token.dynamicProve({
+    const _tokenStr = await token.dynamicProve({
       provingParams: [
         {
-          circuitId: AuthV3Circuit + '-8-32',
+          circuitId: `${AuthV3Circuit}-8-32`,
           provingKey: authV3_8_32_keys.provingKey,
           wasm: authV3_8_32_keys.wasm
         },
@@ -56,13 +54,13 @@ describe('dynamicProve and dynamicVerify', () => {
     });
 
     // The proof protocol should contain the target circuit ID
-    expect(token.zkProof.proof.protocol).toContain(AuthV3Circuit + '-8-32');
+    expect(token.zkProof.proof.protocol).toContain(`${AuthV3Circuit}-8-32`);
 
     // Verify using dynamicVerify with verification keys map
     const isValid = await token.dynamicVerify({
       verificationKeysMap: [
         {
-          circuitId: AuthV3Circuit + '-8-32',
+          circuitId: `${AuthV3Circuit}-8-32`,
           verificationKey: authV3_8_32_keys.verificationKey
         },
         { circuitId: AuthV3Circuit, verificationKey: authV3_keys.verificationKey }

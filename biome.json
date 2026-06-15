@@ -1,0 +1,21 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+  "extends": ["@iden3/biome-config/biome"],
+  "files": {
+    "includes": ["**", "!dist", "!coverage", "!node_modules", "!test/data"]
+  },
+  "overrides": [
+    {
+      "includes": ["src/witness_calculator.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off",
+            "noImplicitAnyLet": "off",
+            "noDoubleEquals": "off"
+          }
+        }
+      }
+    }
+  ]
+}

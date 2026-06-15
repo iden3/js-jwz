@@ -10,7 +10,10 @@ export interface ProofData {
 }
 
 export class ProvingMethodAlg {
-  constructor(public readonly alg: string, public readonly circuitId: string) {}
+  constructor(
+    public readonly alg: string,
+    public readonly circuitId: string
+  ) {}
 
   toString(): string {
     return `${this.alg}:${this.circuitId}`;

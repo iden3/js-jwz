@@ -1,10 +1,9 @@
-import { Groth16, AuthV2Circuit, AuthV3Circuit, AuthV3_8_32Circuit } from './../src/common';
-
-import { ProofInputsPreparerHandlerFunc, proving } from '../src/index';
-import { Token } from './../src/jwz';
+import * as fs from 'node:fs';
 import { base64url as base64 } from 'rfc4648';
-import { test, describe, beforeAll, expect } from 'vitest';
-import * as fs from 'fs';
+import { beforeAll, describe, expect, test } from 'vitest';
+import { AuthV2Circuit, AuthV3_8_32Circuit, AuthV3Circuit, Groth16 } from './../src/common';
+import { type ProofInputsPreparerHandlerFunc, proving } from '../src/index';
+import { Token } from './../src/jwz';
 
 describe('authV2Groth16', () => {
   let mock: ProofInputsPreparerHandlerFunc;
