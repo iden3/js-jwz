@@ -1,5 +1,5 @@
-import { fromBigEndian } from '@iden3/js-iden3-core';
 import { poseidon, sha256 } from '@iden3/js-crypto';
+import { fromBigEndian } from '@iden3/js-iden3-core';
 // Q is the order of the integer field (Zq) that fits inside the SNARK.
 export const qString =
   '21888242871839275222246405745257275088548364400416034343698204186575808495617';

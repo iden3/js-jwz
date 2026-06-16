@@ -1,12 +1,11 @@
+import { exit } from 'node:process';
 import { build } from 'esbuild';
-import { exit } from 'process';
 
 import pkg from '../package.json' with { type: 'json' };
 
-
 const external = [
   ...Object.keys(pkg.dependencies || {}),
-  ...Object.keys(pkg.peerDependencies || {}),
+  ...Object.keys(pkg.peerDependencies || {})
 ];
 
 const baseConfig = {
@@ -28,5 +27,5 @@ build({
 build({
   ...baseConfig,
   format: 'cjs',
-  outfile: 'dist/node/cjs/index.cjs',
+  outfile: 'dist/node/cjs/index.cjs'
 }).catch(() => exit(1));

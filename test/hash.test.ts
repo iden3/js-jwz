@@ -1,7 +1,6 @@
 import { poseidon } from '@iden3/js-crypto';
+import { expect, test } from 'vitest';
 import { hash } from '../src/hash';
-import { test, expect } from 'vitest';
-
 
 test('hash', () => {
   const utf8Encode = new TextEncoder();
@@ -30,10 +29,11 @@ test('poseidon', () => {
   const utf8Encode = new TextEncoder();
   const arr = utf8Encode.encode('message');
   const hex = Buffer.from(arr).toString('hex');
-  const bigIntToHash = BigInt('0x' + hex);
+  const bigIntToHash = BigInt(`0x${hex}`);
 
   const bi = poseidon.hash([bigIntToHash]);
   expect(
-    bi.toString() == '16076885786305451396952367807583087877643965039481491647404584414044042908412'
+    bi.toString() ===
+      '16076885786305451396952367807583087877643965039481491647404584414044042908412'
   );
 });

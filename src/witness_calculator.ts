@@ -15,29 +15,29 @@ export async function witnessBuilder(code: ArrayBuffer, options?: any) {
 
   const instance = await WebAssembly.instantiate(wasmModule, {
     runtime: {
-      exceptionHandler: function (code: number) {
+      exceptionHandler: (code: number) => {
         let err;
-        if (code == 1) {
+        if (code === 1) {
           err = 'Signal not found.\n';
-        } else if (code == 2) {
+        } else if (code === 2) {
           err = 'Too many signals set.\n';
-        } else if (code == 3) {
+        } else if (code === 3) {
           err = 'Signal already set.\n';
-        } else if (code == 4) {
+        } else if (code === 4) {
           err = 'Assert Failed.\n';
-        } else if (code == 5) {
+        } else if (code === 5) {
           err = 'Not enough memory.\n';
-        } else if (code == 6) {
+        } else if (code === 6) {
           err = 'Input signal array access exceeds the size.\n';
         } else {
           err = 'Unknown error.\n';
         }
         throw new Error(err + errStr);
       },
-      printErrorMessage: function () {
-        errStr += getMessage() + '\n';
+      printErrorMessage: () => {
+        errStr += `${getMessage()}\n`;
       },
-      writeBufferMessage: function () {
+      writeBufferMessage: () => {
         const msg = getMessage();
         // Any calls to `log()` will always end with a `\n`, so that's when we print and reset
         if (msg === '\n') {
@@ -51,7 +51,7 @@ export async function witnessBuilder(code: ArrayBuffer, options?: any) {
           msgStr += msg;
         }
       },
-      showSharedRWMemory: function () {
+      showSharedRWMemory: () => {
         printSharedRWMemory();
       }
     }
@@ -65,7 +65,7 @@ export async function witnessBuilder(code: ArrayBuffer, options?: any) {
   function getMessage() {
     let message = '';
     let c = (instance as any).exports.getMessageChar();
-    while (c != 0) {
+    while (c !== 0) {
       message += String.fromCharCode(c);
       c = (instance as any).exports.getMessageChar();
     }
@@ -94,7 +94,10 @@ class WitnessCalculator {
   prime: any;
   witnessSize: any;
   sanityCheck: any;
-  constructor(private instance: any, sanityCheck: any) {
+  constructor(
+    private instance: any,
+    sanityCheck: any
+  ) {
     this.instance = instance;
     this.version = (this.instance.exports as any).getVersion();
     this.n32 = (this.instance.exports as any).getFieldNumLen32();

@@ -1,0 +1,22 @@
+{
+  "version": "0.2",
+  "import": ["@iden3/biome-config/cspell"],
+  "useGitignore": true,
+  "ignorePaths": ["test/data/**", "dist/**", "node_modules/**", "package-lock.json"],
+  "words": [
+    "mymessage",
+    "alphabeta",
+    "groth",
+    "snarkjs",
+    "ffjavascript",
+    "iden",
+    "circ",
+    "wtns",
+    "pubsignals",
+    "Groth",
+    "noble",
+    "rfc4648",
+    "merkletree",
+    "cpub"
+  ]
+}

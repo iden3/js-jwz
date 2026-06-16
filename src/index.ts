@@ -1,22 +1,22 @@
-import { hash } from './hash';
-import { Token, Header } from './jwz';
+import { provingMethodGroth16AuthV2Instance } from './authV2Groth16';
 import {
+  provingMethodGroth16AuthV3_8_32Instance,
+  provingMethodGroth16AuthV3Instance
+} from './authV3Groth16';
+import { type Groth16VerificationKey, verifyGroth16Proof } from './common';
+import { hash } from './hash';
+import { Header, Token } from './jwz';
+import {
+  type DynamicProofInputsPreparerHandlerFunc,
   getProvingMethod,
-  ProofInputsPreparerHandlerFunc,
-  ProvingMethod,
+  type ProofData,
+  type ProofInputsPreparerHandlerFunc,
+  type ProvingMethod,
   ProvingMethodAlg,
   registerProvingMethod,
-  ZKProof,
-  ProofData,
-  DynamicProofInputsPreparerHandlerFunc
+  type ZKProof
 } from './proving';
-import { provingMethodGroth16AuthV2Instance } from './authV2Groth16';
-import { Groth16VerificationKey, verifyGroth16Proof } from './common';
 import { witnessBuilder } from './witness_calculator';
-import {
-  provingMethodGroth16AuthV3Instance,
-  provingMethodGroth16AuthV3_8_32Instance
-} from './authV3Groth16';
 
 registerProvingMethod(
   provingMethodGroth16AuthV2Instance.methodAlg,
@@ -42,17 +42,17 @@ const proving = {
 };
 
 export {
-  proving,
-  ProofInputsPreparerHandlerFunc,
-  DynamicProofInputsPreparerHandlerFunc,
-  ProvingMethod,
-  ProvingMethodAlg,
-  Token,
-  hash,
-  ZKProof,
-  ProofData,
+  type DynamicProofInputsPreparerHandlerFunc,
+  type Groth16VerificationKey,
   Header,
+  hash,
+  type ProofData,
+  type ProofInputsPreparerHandlerFunc,
+  type ProvingMethod,
+  ProvingMethodAlg,
+  proving,
+  Token,
   verifyGroth16Proof,
-  Groth16VerificationKey,
-  witnessBuilder
+  witnessBuilder,
+  type ZKProof
 };

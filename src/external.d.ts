@@ -1,3 +1,7 @@
+declare module 'ffjavascript' {
+  export function getCurveFromName(name: string): Promise<{ terminate: () => void }>;
+}
+
 declare module 'snarkjs' {
   export namespace groth16 {
     export function verify(verKey: object, pubSignals: string[], proof: object): Promise<boolean>;

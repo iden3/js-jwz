@@ -1,15 +1,14 @@
+import { toBigEndian } from '@iden3/js-iden3-core';
+import { base64url as base64 } from 'rfc4648';
 import { hash } from './hash';
 import {
-  ZKProof,
-  ProvingMethod,
-  ProvingMethodAlg,
-  ProofInputsPreparerHandlerFunc,
+  type DynamicProofInputsPreparerHandlerFunc,
   getProvingMethod,
-  DynamicProofInputsPreparerHandlerFunc
+  type ProofInputsPreparerHandlerFunc,
+  type ProvingMethod,
+  ProvingMethodAlg,
+  type ZKProof
 } from './proving';
-
-import { base64url as base64 } from 'rfc4648';
-import { toBigEndian } from '@iden3/js-iden3-core';
 
 export enum Header {
   Type = 'typ',
@@ -115,7 +114,7 @@ export class Token {
   // parseCompact parses a message in compact format.
   private static async parseCompact(tokenStr: string): Promise<Token> {
     const parts = tokenStr.split('.');
-    if (parts.length != 3) {
+    if (parts.length !== 3) {
       throw new Error('iden3/js-jwz: compact JWZ format must have three segments');
     }
     const rawProtected = base64.parse(parts[0], { loose: true });

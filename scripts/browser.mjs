@@ -1,10 +1,9 @@
 import commonJS from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
-import json from '@rollup/plugin-json';
-import tsConfig from '../tsconfig.json' with { type: 'json' };
 import packageJson from '../package.json' with { type: 'json' };
-
+import tsConfig from '../tsconfig.json' with { type: 'json' };
 
 const compilerOptions = {
   ...tsConfig.compilerOptions,
@@ -12,7 +11,7 @@ const compilerOptions = {
   declarationDir: undefined,
   declaration: undefined,
   sourceMap: undefined,
-  declarationMap: undefined,
+  declarationMap: undefined
 };
 
 const external = [
@@ -37,7 +36,7 @@ const config = {
     commonJS(),
     nodeResolve({
       browser: true
-    }),
+    })
   ],
   treeshake: {
     preset: 'smallest'
@@ -56,7 +55,7 @@ export default [
       nodeResolve({
         browser: true
       }),
-      commonJS(),
+      commonJS()
     ],
     external: [],
     output: [
@@ -64,7 +63,8 @@ export default [
         format: 'iife',
         file: 'dist/browser/umd/index.js',
         name: 'JWZ',
-        sourcemap: true
+        sourcemap: true,
+        inlineDynamicImports: true
       }
     ]
   }

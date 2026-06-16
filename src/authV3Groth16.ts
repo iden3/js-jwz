@@ -1,8 +1,8 @@
 import { Id } from '@iden3/js-iden3-core';
-import { ProvingMethod, ProvingMethodAlg, ZKProof } from './proving';
-import { AuthV3_8_32Circuit, AuthV3Circuit, Groth16, prove, verify } from './common';
 import { Hash } from '@iden3/js-merkletree';
 import { getCurveFromName } from 'ffjavascript';
+import { AuthV3_8_32Circuit, AuthV3Circuit, Groth16, prove, verify } from './common';
+import { type ProvingMethod, ProvingMethodAlg, type ZKProof } from './proving';
 
 // AuthV3PubSignals auth.circom public signals
 export interface AuthV3PubSignals {
