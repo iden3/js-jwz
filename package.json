@@ -62,9 +62,9 @@
     "@iden3/js-iden3-core": "1.8.0",
     "@iden3/js-merkletree": "1.5.1",
     "@noble/curves": "2.0.1",
-    "ffjavascript": "https://github.com/iden3/ffjavascript.git#feat/esm-migration",
+    "ffjavascript": "git+https://github.com/iden3/ffjavascript.git#6ba342fc2526f9cad9b729039a3294ca9bd04ce4",
     "rfc4648": "1.5.4",
-    "snarkjs": "https://github.com/iden3/snarkjs.git#feat/esm-migration"
+    "snarkjs": "git+https://github.com/iden3/snarkjs.git#0cce98520c963ca0d9e440aa39e9df3067fea1c5"
   },
   "devDependencies": {
     "@cspell/eslint-plugin": "8.14.2",
